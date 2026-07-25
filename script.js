@@ -133,6 +133,7 @@
   const BODY_LINE_HEIGHT = 38;
   const BODY_MIN_LINES = 2;
   const BOTTOM_PAD = 103;
+  const BG_OFFSET_Y = 20;
   const BG_PEAK_Y = 45;
   const BG_UP_REACH = 10;
   const BG_DOWN_REACH = 280;
@@ -258,7 +259,11 @@
     // subtitle/body/UID all still sit on a clearly darkened area. Drawn as
     // two elliptical gradients sharing the same peak, each with its own
     // vertical reach, meeting seamlessly at the peak row.
-    const peakY = boxTop + BG_PEAK_Y * s;
+    // BG_OFFSET_Y shifts the whole darkened background down independently
+    // of the text block above, to tighten the gap between the name and the
+    // top of the darkened area without moving the name/subtitle/body text.
+    const bgTop = boxTop + BG_OFFSET_Y * s;
+    const peakY = bgTop + BG_PEAK_Y * s;
     const horizReach = W * BG_HORIZ_REACH_RATIO;
 
     function drawBgHalf(vReach, clipTop, clipBottom) {
@@ -278,7 +283,7 @@
       ctx.restore();
     }
 
-    drawBgHalf(BG_UP_REACH, boxTop, peakY);
+    drawBgHalf(BG_UP_REACH, bgTop, peakY);
     drawBgHalf(BG_DOWN_REACH, peakY, H);
     ctx.textAlign = "center";
     ctx.shadowColor = "rgba(0,0,0,0.6)";
