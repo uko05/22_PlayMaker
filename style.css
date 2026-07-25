@@ -1,0 +1,371 @@
+@font-face {
+  font-family: 'MihoyoZenZero';
+  src: url('font/mihoyo-zenzero.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Genshin';
+  src: url('font/Genshin.ttf') format('truetype');
+  font-display: swap;
+}
+
+:root {
+  --bg: #f4f4f9;
+  --surface: #ffffff;
+  --surface2: #eeeeee;
+  --accent: #ffcc00;
+  --text: #333333;
+  --muted: #888888;
+  --border: #dddddd;
+  --font: 'MihoyoZenZero', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+  --max-w: 720px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  letter-spacing: 0.02em;
+}
+
+/* ========== ヘッダー ========== */
+header {
+  background: var(--surface);
+  border-bottom: 2px solid var(--accent);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-top {
+  min-height: 56px;
+  padding: 8px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.header-top h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+.lang-switch {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.lang-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.lang-option input {
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+/* ========== メインモードタブ（原神 / スタレ） ========== */
+.main-mode-tab-bar {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+}
+
+.main-mode-tab-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 10px 8px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  text-align: center;
+  margin-bottom: -1px;
+}
+
+.main-mode-tab-btn:hover {
+  color: var(--text);
+}
+
+.main-mode-tab-btn.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+  background: rgba(255, 204, 0, 0.18);
+  font-weight: bold;
+}
+
+/* ========== メインエリア ========== */
+main {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+}
+
+.coming-soon {
+  text-align: center;
+  color: var(--muted);
+  padding: 60px 0;
+  font-size: 0.95rem;
+}
+
+.action-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.btn-action {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 152px;
+  min-height: 44px;
+  margin: 0;
+  padding: 11px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.85rem;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
+}
+
+.btn-action:hover {
+  filter: brightness(0.97);
+}
+
+.btn-action.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #3a2c00;
+  font-weight: bold;
+}
+
+.btn-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ========== 入力パネル（折りたたみ） ========== */
+.input-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.input-panel-toggle {
+  width: 100%;
+  background: var(--surface2);
+  border: none;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.toggle-arrow {
+  color: var(--muted);
+  transition: transform 0.2s;
+  font-size: 0.75rem;
+}
+
+.input-panel.collapsed .toggle-arrow {
+  transform: rotate(-90deg);
+}
+
+.input-panel-body {
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.input-panel.collapsed .input-panel-body {
+  display: none;
+}
+
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.field input[type="text"],
+.field textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 9px 10px;
+  font-size: 0.88rem;
+  font-family: var(--font);
+  resize: vertical;
+}
+
+.field input[type="text"]:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.field textarea {
+  min-height: 70px;
+  line-height: 1.5;
+}
+
+/* ========== 画像表示エリア（ドラッグ&ドロップ） ========== */
+.canvas-drop-area {
+  position: relative;
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  background: var(--surface2);
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.canvas-drop-area.drag {
+  border-color: var(--accent);
+  background: rgba(255, 204, 0, 0.1);
+}
+
+.canvas-drop-area.has-image {
+  border-style: solid;
+  background: #11141c;
+  cursor: zoom-in;
+}
+
+#canvas {
+  width: 100%;
+  height: auto;
+  display: none;
+}
+
+.canvas-drop-area.has-image #canvas {
+  display: block;
+}
+
+.drop-hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-align: center;
+  padding: 20px;
+  line-height: 1.7;
+  pointer-events: none;
+}
+
+.canvas-drop-area.has-image .drop-hint {
+  display: none;
+}
+
+/* ========== 画像拡大モーダル ========== */
+.image-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  cursor: zoom-out;
+}
+
+.image-modal.open {
+  display: flex;
+}
+
+.image-modal #canvas {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 92vw;
+  max-height: 92vh;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  cursor: zoom-out;
+}
+
+/* ========== フッター ========== */
+.app-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 26px 0 40px;
+}
+
+.app-footer a {
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.app-footer a:hover {
+  opacity: 1;
+}
+
+.app-footer img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+@media (max-width: 480px) {
+  .header-top h1 {
+    font-size: 0.9rem;
+  }
+  .lang-option {
+    font-size: 0.65rem;
+  }
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>原神・スタレ画面メーカー</title>
+
+<!-- Favicon -->
+<link rel="icon" href="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/favicon_io/favicon.ico" type="image/x-icon">
+<link rel="icon" sizes="16x16" href="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/favicon_io/favicon-16x16.png">
+<link rel="icon" sizes="32x32" href="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/favicon_io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/favicon_io/apple-touch-icon.png">
+<link rel="icon" sizes="192x192" href="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/favicon_io/android-chrome-192x192.png">
+<link rel="icon" sizes="512x512" href="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/favicon_io/android-chrome-512x512.png">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- サイドバー → sidebar.js が自動挿入 -->
+
+<header>
+  <div class="header-top">
+    <h1 id="site-title" data-i18n="siteTitle">原神・スタレ画面メーカー</h1>
+    <div class="lang-switch" aria-label="Language switch">
+      <label class="lang-option">
+        <input type="radio" name="lang" value="ja" checked>
+        <span data-i18n="langJa">日本語</span>
+      </label>
+      <label class="lang-option">
+        <input type="radio" name="lang" value="en">
+        <span data-i18n="langEn">English</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="main-mode-tab-bar" id="main-mode-tab-bar">
+    <button class="main-mode-tab-btn active" data-mode="genshin" data-i18n="tabGenshin">原神</button>
+    <button class="main-mode-tab-btn" data-mode="starrail" data-i18n="tabStarrail">崩壊：スターレイル</button>
+  </div>
+</header>
+
+<main>
+  <div id="genshin-panel" class="game-panel">
+
+    <div class="action-row">
+      <label class="btn-action" id="loadImageLabel">
+        <span id="loadImageText" data-i18n="btnLoadImage">画像読み込み</span>
+        <input type="file" id="imageInput" accept="image/*" hidden>
+      </label>
+      <button class="btn-action btn-primary" id="downloadBtn" disabled data-i18n="btnSaveImage">Save Image</button>
+    </div>
+
+    <div class="input-panel" id="inputPanel">
+      <button class="input-panel-toggle" id="inputPanelToggle" type="button">
+        <span data-i18n="inputPanelTitle">テキスト入力</span>
+        <span class="toggle-arrow">▲</span>
+      </button>
+      <div class="input-panel-body" id="inputPanelBody">
+        <div class="field">
+          <label for="nameInput" data-i18n="labelName">話者名</label>
+          <input type="text" id="nameInput" data-i18n-placeholder="placeholderName" placeholder="例: キャサリン" maxlength="30">
+        </div>
+        <div class="field">
+          <label for="subtitleInput" data-i18n="labelSubtitle">役職 / サブタイトル(任意)</label>
+          <input type="text" id="subtitleInput" data-i18n-placeholder="placeholderSubtitle" placeholder="例: 冒険者協会の受付係" maxlength="40">
+        </div>
+        <div class="field">
+          <label for="bodyInput" data-i18n="labelBody">セリフ本文</label>
+          <textarea id="bodyInput" data-i18n-placeholder="placeholderBody" placeholder="例: ようこそ、冒険者協会へ。何かお手伝いできることはありますか?" maxlength="200"></textarea>
+        </div>
+        <div class="field">
+          <label for="uidInput" data-i18n="labelUid">UID(任意)</label>
+          <input type="text" id="uidInput" data-i18n-placeholder="placeholderUid" placeholder="例: 801728912" maxlength="20">
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas-drop-area" id="canvasDropArea">
+      <canvas id="canvas" width="1920" height="1080"></canvas>
+      <div class="drop-hint" id="dropHint" data-i18n="dropHint">画像をここにドラッグ&ドロップ<br>または上の「画像読み込み」から選択してください</div>
+    </div>
+
+  </div>
+
+  <div class="image-modal" id="imageModal"></div>
+
+  <div id="starrail-panel" class="game-panel" style="display:none">
+    <p class="coming-soon" data-i18n="comingSoon">崩壊：スターレイルは近日対応予定です</p>
+  </div>
+</main>
+
+<footer class="app-footer">
+  <a href="https://x.com/uko_dayo_" target="_blank" rel="noopener noreferrer">
+    <img src="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/footer_icon/twitter_image.png" alt="X (Twitter)">
+  </a>
+  <a href="https://t.co/0jAcAV2GJv" target="_blank" rel="noopener noreferrer">
+    <img src="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/footer_icon/discord_image.png" alt="Discord">
+  </a>
+</footer>
+
+<script src="script.js"></script>
+
+<!-- 共通サイドバー -->
+<script src="https://uko05.github.io/TopPage00/shared/sidebar.js"></script>
+</body>
+</html>
