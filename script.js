@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v3";
+  const BUILD_VERSION = "v4";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -144,7 +144,7 @@
   const BG_PEAK_Y = 45;
   const BG_UP_REACH = 10;
   const BG_DOWN_REACH = 280;
-  const BG_EDGE_ALPHA = 0.04;
+  const BG_EDGE_ALPHA = 0;
   const BG_CENTER_ALPHA = 0.44;
   const BG_HORIZ_REACH_RATIO = 0.52;
   const DIAMOND_FROM_BOTTOM = 34;
