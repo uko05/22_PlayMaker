@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v7";
+  const BUILD_VERSION = "v8";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -246,14 +246,13 @@
     const maxTextWidth = W - (LEFT_MARGIN + RIGHT_MARGIN) * s;
     const lines = bodyRaw.trim() ? wrapBody(bodyRaw.trim(), maxTextWidth) : [];
 
-    // The body area always reserves at least BODY_MIN_LINES of height; when
-    // there's less text than that, it's bottom-packed (empty slot(s) stay at
-    // the top), and the name/subtitle block shifts down by the same amount
-    // so it stays snug against the text instead of leaving a gap.
+    // Every element (name, subtitle, each body line, UID) sits at a fixed
+    // reference offset from boxTop, same as a normal static layout — it
+    // never moves based on how many body lines are actually present. The
+    // box only reserves at least BODY_MIN_LINES of height (so it never
+    // shrinks below the 2-line size) and grows further only if the text
+    // wraps past that.
     const linesForHeight = Math.max(lines.length, BODY_MIN_LINES);
-    const emptySlots = linesForHeight - lines.length;
-    const shiftDown = emptySlots * BODY_LINE_HEIGHT;
-
     const boxHeight = (BODY_START_Y + (linesForHeight - 1) * BODY_LINE_HEIGHT + BOTTOM_PAD) * s;
     const boxTop = H - boxHeight;
 
@@ -267,10 +266,9 @@
     // BG_OFFSET_Y shifts the whole darkened background down independently
     // of the text block above, to tighten the gap between the name and the
     // top of the darkened area without moving the name/subtitle/body text.
-    // Deliberately NOT shifted by shiftDown: boxTop (and so boxHeight) is
-    // already constant across 0/1/2 body lines thanks to BODY_MIN_LINES, and
-    // the background should stay just as constant — always the height of
-    // the 2-line case — rather than growing/shrinking with the line count.
+    // boxTop (and so boxHeight) is already constant across 0/1/2 body lines
+    // thanks to BODY_MIN_LINES, so the background stays just as constant —
+    // always the height of the 2-line case — regardless of line count.
     //
     // This is evaluated as one continuous elliptical-distance formula per
     // pixel (not two gradients drawn separately and abutted) — two separate
@@ -312,17 +310,17 @@
     if (name) {
       ctx.font = `${Math.round(34 * s)}px ${FONT}`;
       ctx.fillStyle = GOLD;
-      ctx.fillText(name, cx, boxTop + (NAME_Y + shiftDown) * s);
+      ctx.fillText(name, cx, boxTop + NAME_Y * s);
     }
 
     if (subtitle) {
       ctx.font = `${Math.round(22 * s)}px ${FONT}`;
       const subtitleHalfWidth = ctx.measureText(subtitle).width / 2;
-      const decorY = boxTop + (SUBTITLE_Y - 7 + shiftDown) * s;
+      const decorY = boxTop + (SUBTITLE_Y - 7) * s;
       drawDecorLine(cx, decorY, s, subtitleHalfWidth + DECOR_SIDE_GAP * s);
 
       ctx.fillStyle = ORANGE;
-      ctx.fillText(subtitle, cx, boxTop + (SUBTITLE_Y + shiftDown) * s);
+      ctx.fillText(subtitle, cx, boxTop + SUBTITLE_Y * s);
     }
 
     if (lines.length) {
@@ -330,7 +328,7 @@
       ctx.font = `${Math.round(30 * s)}px ${FONT}`;
       ctx.fillStyle = WHITE;
       lines.forEach((line, i) => {
-        const y = boxTop + (BODY_START_Y + shiftDown + i * BODY_LINE_HEIGHT) * s;
+        const y = boxTop + (BODY_START_Y + i * BODY_LINE_HEIGHT) * s;
         ctx.fillText(line, cx, y);
       });
     }
