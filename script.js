@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v8";
+  const BUILD_VERSION = "v9";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -246,14 +246,13 @@
     const maxTextWidth = W - (LEFT_MARGIN + RIGHT_MARGIN) * s;
     const lines = bodyRaw.trim() ? wrapBody(bodyRaw.trim(), maxTextWidth) : [];
 
-    // Every element (name, subtitle, each body line, UID) sits at a fixed
-    // reference offset from boxTop, same as a normal static layout — it
-    // never moves based on how many body lines are actually present. The
-    // box only reserves at least BODY_MIN_LINES of height (so it never
-    // shrinks below the 2-line size) and grows further only if the text
-    // wraps past that.
-    const linesForHeight = Math.max(lines.length, BODY_MIN_LINES);
-    const boxHeight = (BODY_START_Y + (linesForHeight - 1) * BODY_LINE_HEIGHT + BOTTOM_PAD) * s;
+    // Every element (name, subtitle, each body line, UID, the darkened
+    // background) sits at a fixed reference offset from boxTop, and boxTop
+    // itself is always the BODY_MIN_LINES-tall reference height — it never
+    // moves based on how many body lines are actually present. Extra lines
+    // beyond that just draw further down inside the same fixed box instead
+    // of pushing boxTop (and everything anchored to it) upward.
+    const boxHeight = (BODY_START_Y + (BODY_MIN_LINES - 1) * BODY_LINE_HEIGHT + BOTTOM_PAD) * s;
     const boxTop = H - boxHeight;
 
     const cx = W / 2;
