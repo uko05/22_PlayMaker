@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v5";
+  const BUILD_VERSION = "v6";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -141,7 +141,7 @@
   const BODY_MIN_LINES = 2;
   const BOTTOM_PAD = 103;
   const BG_OFFSET_Y = 20;
-  const BG_PEAK_Y = 45;
+  const BG_PEAK_Y = 30;
   const BG_UP_REACH = 10;
   const BG_DOWN_REACH = 280;
   const BG_EDGE_ALPHA = 0;
@@ -267,12 +267,16 @@
     // BG_OFFSET_Y shifts the whole darkened background down independently
     // of the text block above, to tighten the gap between the name and the
     // top of the darkened area without moving the name/subtitle/body text.
+    // Deliberately NOT shifted by shiftDown: boxTop (and so boxHeight) is
+    // already constant across 0/1/2 body lines thanks to BODY_MIN_LINES, and
+    // the background should stay just as constant — always the height of
+    // the 2-line case — rather than growing/shrinking with the line count.
     //
     // This is evaluated as one continuous elliptical-distance formula per
     // pixel (not two gradients drawn separately and abutted) — two separate
     // fillRect/clip() passes leave a visible seam where they meet because
     // their anti-aliased edges don't line up pixel-for-pixel.
-    const bgTop = boxTop + (BG_OFFSET_Y + shiftDown) * s;
+    const bgTop = boxTop + BG_OFFSET_Y * s;
     const peakY = bgTop + BG_PEAK_Y * s;
     const horizReach = W * BG_HORIZ_REACH_RATIO;
     const upReach = BG_UP_REACH * s;
