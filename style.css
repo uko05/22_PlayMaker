@@ -369,3 +369,15 @@ main {
     font-size: 0.65rem;
   }
 }
+
+/* ========== ビルド確認用バージョン表示 ========== */
+.build-tag {
+  position: fixed;
+  right: 8px;
+  bottom: 6px;
+  font-size: 10px;
+  color: var(--muted);
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 10;
+}

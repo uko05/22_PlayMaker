@@ -256,35 +256,43 @@
     // box (roughly where the name sits), fading outward in every direction
     // — but NOT symmetrically. Above that point it fades out quickly (a
     // short blur into the clean scene); below it, it fades out slowly, so
-    // subtitle/body/UID all still sit on a clearly darkened area. Drawn as
-    // two elliptical gradients sharing the same peak, each with its own
-    // vertical reach, meeting seamlessly at the peak row.
+    // subtitle/body/UID all still sit on a clearly darkened area.
     // BG_OFFSET_Y shifts the whole darkened background down independently
     // of the text block above, to tighten the gap between the name and the
     // top of the darkened area without moving the name/subtitle/body text.
+    //
+    // This is evaluated as one continuous elliptical-distance formula per
+    // pixel (not two gradients drawn separately and abutted) — two separate
+    // fillRect/clip() passes leave a visible seam where they meet because
+    // their anti-aliased edges don't line up pixel-for-pixel.
     const bgTop = boxTop + BG_OFFSET_Y * s;
     const peakY = bgTop + BG_PEAK_Y * s;
     const horizReach = W * BG_HORIZ_REACH_RATIO;
+    const upReach = BG_UP_REACH * s;
+    const downReach = BG_DOWN_REACH * s;
 
-    function drawBgHalf(vReach, clipTop, clipBottom) {
-      if (clipBottom <= clipTop) return;
-      const k = (vReach * s) / horizReach;
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(0, clipTop, W, clipBottom - clipTop);
-      ctx.clip();
-      ctx.translate(cx, peakY);
-      ctx.scale(1, k);
-      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, horizReach);
-      grad.addColorStop(0, `rgba(5,6,10,${BG_CENTER_ALPHA})`);
-      grad.addColorStop(1, `rgba(5,6,10,${BG_EDGE_ALPHA})`);
-      ctx.fillStyle = grad;
-      ctx.fillRect(-cx, (clipTop - peakY) / k, W, (clipBottom - clipTop) / k);
-      ctx.restore();
+    const rowTop = Math.max(0, Math.floor(bgTop));
+    if (rowTop < H) {
+      const region = ctx.getImageData(0, rowTop, W, H - rowTop);
+      const px = region.data;
+      const dR = 5, dG = 6, dB = 10;
+      for (let row = 0; row < region.height; row++) {
+        const y = rowTop + row;
+        const dy = y - peakY;
+        const vReach = dy <= 0 ? upReach : downReach;
+        const vT = vReach > 0 ? dy / vReach : dy <= 0 ? -Infinity : Infinity;
+        for (let x = 0; x < W; x++) {
+          const hT = (x - cx) / horizReach;
+          const t = Math.min(Math.sqrt(vT * vT + hT * hT), 1);
+          const alpha = BG_CENTER_ALPHA + (BG_EDGE_ALPHA - BG_CENTER_ALPHA) * t;
+          const i = (row * W + x) * 4;
+          px[i] = dR * alpha + px[i] * (1 - alpha);
+          px[i + 1] = dG * alpha + px[i + 1] * (1 - alpha);
+          px[i + 2] = dB * alpha + px[i + 2] * (1 - alpha);
+        }
+      }
+      ctx.putImageData(region, 0, rowTop);
     }
-
-    drawBgHalf(BG_UP_REACH, bgTop, peakY);
-    drawBgHalf(BG_DOWN_REACH, peakY, H);
     ctx.textAlign = "center";
     ctx.shadowColor = "rgba(0,0,0,0.6)";
     ctx.shadowBlur = 6 * s;
