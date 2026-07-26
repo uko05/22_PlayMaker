@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v4";
+  const BUILD_VERSION = "v5";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -272,7 +272,7 @@
     // pixel (not two gradients drawn separately and abutted) — two separate
     // fillRect/clip() passes leave a visible seam where they meet because
     // their anti-aliased edges don't line up pixel-for-pixel.
-    const bgTop = boxTop + BG_OFFSET_Y * s;
+    const bgTop = boxTop + (BG_OFFSET_Y + shiftDown) * s;
     const peakY = bgTop + BG_PEAK_Y * s;
     const horizReach = W * BG_HORIZ_REACH_RATIO;
     const upReach = BG_UP_REACH * s;
