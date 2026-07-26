@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v9";
+  const BUILD_VERSION = "v10";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -140,6 +140,10 @@
   const BODY_LINE_HEIGHT = 38;
   const BODY_MIN_LINES = 2;
   const BOTTOM_PAD = 103;
+  // Shifts the whole box (background, name, subtitle, body — not the
+  // bottom-anchored diamond/UID) down by ~0.8 of a character's height,
+  // requested to better match the reference's vertical placement.
+  const GLOBAL_Y_OFFSET = 24;
   const BG_OFFSET_Y = 20;
   const BG_PEAK_Y = 10;
   const BG_UP_REACH = 10;
@@ -200,7 +204,9 @@
       }
       if (current.length > 0) lines.push(current);
     });
-    return lines.length ? lines : [""];
+    // Capped at BODY_MIN_LINES: the box no longer grows for a 3rd+ line, so
+    // anything past that would just draw past the reserved area.
+    return (lines.length ? lines : [""]).slice(0, BODY_MIN_LINES);
   }
 
   function drawDecorLine(cx, y, s, gapHalfWidth) {
@@ -253,7 +259,7 @@
     // beyond that just draw further down inside the same fixed box instead
     // of pushing boxTop (and everything anchored to it) upward.
     const boxHeight = (BODY_START_Y + (BODY_MIN_LINES - 1) * BODY_LINE_HEIGHT + BOTTOM_PAD) * s;
-    const boxTop = H - boxHeight;
+    const boxTop = H - boxHeight + GLOBAL_Y_OFFSET * s;
 
     const cx = W / 2;
 
