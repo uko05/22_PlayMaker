@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v18";
+  const BUILD_VERSION = "v19";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -224,7 +224,7 @@
   const LEFT_MARGIN_SR = 261;
   const RIGHT_MARGIN_SR = 273;
   const UID_LEFT_MARGIN_SR = 36;
-  const DECOR_LINE_WIDTH_SR = 1700 * 0.85;
+  const DECOR_LINE_WIDTH_SR = 1700 * 0.85 * 1.05;
   const CHEVRON_SIZE_SR = 48;
   const NAME_FONT_SR = 35;
   const BODY_FONT_SR = 28;
