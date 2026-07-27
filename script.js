@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v17";
+  const BUILD_VERSION = "v18";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -32,8 +32,8 @@
       placeholderUid: "例: 801728912",
       dropHint: "画像をここにドラッグ&ドロップ<br>または上の「画像読み込み」から選択してください",
       comingSoon: "崩壊：スターレイルは近日対応予定です",
-      placeholderNameSr: "例: ウェンウェン",
-      placeholderBodySr: "例: またお会いしましたね。",
+      placeholderNameSr: "例: ヘルタ",
+      placeholderBodySr: "例: 「模擬宇宙」のテストを忘れないでね。",
       placeholderUidSr: "例: 833234573",
     },
     en: {
@@ -56,8 +56,8 @@
       placeholderUid: "e.g. 801728912",
       dropHint: "Drag & drop an image here<br>or select one via \"Load Image\" above",
       comingSoon: "Honkai: Star Rail support is coming soon",
-      placeholderNameSr: "e.g. Wenwen",
-      placeholderBodySr: "e.g. We meet again.",
+      placeholderNameSr: "e.g. Herta",
+      placeholderBodySr: "e.g. Don't forget to test my Simulated Universe!",
       placeholderUidSr: "e.g. 833234573",
     },
   };
