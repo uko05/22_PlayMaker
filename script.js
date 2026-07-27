@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v13";
+  const BUILD_VERSION = "v14";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -203,8 +203,11 @@
 
   // Reference metrics, pixel-scanned from スタレ一部.png (reference width 1908).
   const REF_W_SR = 1908;
-  const NAME_Y_SR = 38;
-  const LINE_Y_SR = 55;
+  // NAME_Y_SR/LINE_Y_SR each carry an extra +14 (~0.5 character's height) on
+  // top of GLOBAL_Y_OFFSET_SR below — a finer nudge for just the name and the
+  // line, independent of the body text.
+  const NAME_Y_SR = 38 + 14;
+  const LINE_Y_SR = 55 + 14;
   const BODY_START_Y_SR = 89;
   const BODY_LINE_HEIGHT_SR = 34;
   const BODY_MIN_LINES_SR = 2;
@@ -219,13 +222,14 @@
   const UID_LEFT_MARGIN_SR = 36;
   const DECOR_LINE_WIDTH_SR = 1700;
   const CHEVRON_SIZE_SR = 48;
-  const NAME_FONT_SR = 31;
-  const BODY_FONT_SR = 26;
+  const NAME_FONT_SR = 34;
+  const BODY_FONT_SR = 28;
   const UID_FONT_SR = 16;
-  const TEXT_STROKE_WIDTH_SR = 3;
+  const TEXT_STROKE_WIDTH_SR = 1.5;
 
   const GOLD_SR = "#f0c56a";
   const WHITE_SR = "#f6f2ee";
+  const TEXT_STROKE_COLOR_SR = "#555555";
 
   let srImg = null;
 
@@ -304,7 +308,7 @@
     srCtx.shadowBlur = 5 * s;
     srCtx.shadowOffsetY = 1 * s;
     srCtx.lineWidth = TEXT_STROKE_WIDTH_SR * s;
-    srCtx.strokeStyle = "#000000";
+    srCtx.strokeStyle = TEXT_STROKE_COLOR_SR;
     srCtx.lineJoin = "round";
 
     if (name) {
