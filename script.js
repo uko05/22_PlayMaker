@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v14";
+  const BUILD_VERSION = "v15";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -215,6 +215,10 @@
   // Shifts name/line/body down by ~1 character's height, without moving the
   // bottom-anchored chevron/UID (same idea as Genshin's GLOBAL_Y_OFFSET).
   const GLOBAL_Y_OFFSET_SR = 28;
+  // Extra nudge applied only at body-text draw time (not part of the
+  // boxHeight formula), so it moves the dialogue text without moving
+  // boxTop — and therefore without moving the already-correct name/line.
+  const BODY_EXTRA_Y_SR = 14;
   const CHEVRON_FROM_BOTTOM_SR = 69;
   const UID_FROM_BOTTOM_SR = 19;
   const LEFT_MARGIN_SR = 261;
@@ -222,12 +226,12 @@
   const UID_LEFT_MARGIN_SR = 36;
   const DECOR_LINE_WIDTH_SR = 1700;
   const CHEVRON_SIZE_SR = 48;
-  const NAME_FONT_SR = 34;
+  const NAME_FONT_SR = 35;
   const BODY_FONT_SR = 28;
   const UID_FONT_SR = 16;
   const TEXT_STROKE_WIDTH_SR = 1.5;
 
-  const GOLD_SR = "#f0c56a";
+  const GOLD_SR = "#dbc291";
   const WHITE_SR = "#f6f2ee";
   const TEXT_STROKE_COLOR_SR = "#555555";
 
@@ -326,7 +330,7 @@
       srCtx.font = `${Math.round(BODY_FONT_SR * s)}px ${FONT_SR}`;
       srCtx.fillStyle = WHITE_SR;
       lines.forEach((line, i) => {
-        const y = boxTop + (BODY_START_Y_SR + i * BODY_LINE_HEIGHT_SR) * s;
+        const y = boxTop + (BODY_START_Y_SR + BODY_EXTRA_Y_SR + i * BODY_LINE_HEIGHT_SR) * s;
         srCtx.strokeText(line, LEFT_MARGIN_SR * s, y);
         srCtx.fillText(line, LEFT_MARGIN_SR * s, y);
       });
