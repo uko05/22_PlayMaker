@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v19";
+  const BUILD_VERSION = "v20";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -27,7 +27,7 @@
       labelSubtitle: "役職 / サブタイトル(任意)",
       placeholderSubtitle: "例: 冒険者協会の受付係",
       labelBody: "セリフ本文",
-      placeholderBody: "例: ようこそ、冒険者協会へ。何かお手伝いできることはありますか?",
+      placeholderBody: "例: 星と深淵を目指せ！ようこそ、冒険者協会へ。",
       labelUid: "UID(任意)",
       placeholderUid: "例: 801728912",
       dropHint: "画像をここにドラッグ&ドロップ<br>または上の「画像読み込み」から選択してください",
@@ -49,9 +49,9 @@
       labelName: "Speaker Name",
       placeholderName: "e.g. Katheryne",
       labelSubtitle: "Title / Subtitle (optional)",
-      placeholderSubtitle: "e.g. Adventurers' Guild Receptionist",
+      placeholderSubtitle: "e.g. Receptionist, Adventurers' Guild",
       labelBody: "Dialogue Text",
-      placeholderBody: "e.g. Welcome to the Adventurers' Guild. How can I help you?",
+      placeholderBody: "e.g. Ad astra abyssosque! Welcome to the Adventurers' Guild.",
       labelUid: "UID (optional)",
       placeholderUid: "e.g. 801728912",
       dropHint: "Drag & drop an image here<br>or select one via \"Load Image\" above",
@@ -224,7 +224,7 @@
   const LEFT_MARGIN_SR = 261;
   const RIGHT_MARGIN_SR = 273;
   const UID_LEFT_MARGIN_SR = 36;
-  const DECOR_LINE_WIDTH_SR = 1700 * 0.85 * 1.05;
+  const DECOR_LINE_WIDTH_SR = 1700 * 0.85 * 1.05 * 0.98;
   const CHEVRON_SIZE_SR = 48;
   const NAME_FONT_SR = 35;
   const BODY_FONT_SR = 28;
