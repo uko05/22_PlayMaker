@@ -291,13 +291,13 @@ main {
   cursor: zoom-in;
 }
 
-#canvas {
+.dialogue-canvas {
   width: 100%;
   height: auto;
   display: none;
 }
 
-.canvas-drop-area.has-image #canvas {
+.canvas-drop-area.has-image .dialogue-canvas {
   display: block;
 }
 
@@ -331,7 +331,7 @@ main {
   display: flex;
 }
 
-.image-modal #canvas {
+.image-modal .dialogue-canvas {
   display: block;
   width: auto;
   height: auto;
