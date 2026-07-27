@@ -10,6 +10,12 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Starrail';
+  src: url('font/Starrail.ttf') format('truetype');
+  font-display: swap;
+}
+
 :root {
   --bg: #f4f4f9;
   --surface: #ffffff;

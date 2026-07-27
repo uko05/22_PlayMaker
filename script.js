@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v10";
+  const BUILD_VERSION = "v11";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -32,6 +32,9 @@
       placeholderUid: "例: 801728912",
       dropHint: "画像をここにドラッグ&ドロップ<br>または上の「画像読み込み」から選択してください",
       comingSoon: "崩壊：スターレイルは近日対応予定です",
+      placeholderNameSr: "例: ウェンウェン",
+      placeholderBodySr: "例: またお会いしましたね。",
+      placeholderUidSr: "例: 833234573",
     },
     en: {
       siteTitle: "Genshin / Star Rail Screen Maker",
@@ -53,6 +56,9 @@
       placeholderUid: "e.g. 801728912",
       dropHint: "Drag & drop an image here<br>or select one via \"Load Image\" above",
       comingSoon: "Honkai: Star Rail support is coming soon",
+      placeholderNameSr: "e.g. Wenwen",
+      placeholderBodySr: "e.g. We meet again.",
+      placeholderUidSr: "e.g. 833234573",
     },
   };
 
@@ -80,6 +86,13 @@
       loadText.textContent = d.btnLoadImage;
     } else if (loadText && img) {
       loadText.textContent = d.btnChangeImage;
+    }
+
+    const srLoadText = document.getElementById("srLoadImageText");
+    if (srLoadText && !srImg) {
+      srLoadText.textContent = d.btnLoadImage;
+    } else if (srLoadText && srImg) {
+      srLoadText.textContent = d.btnChangeImage;
     }
 
     document.documentElement.lang = lang;
@@ -114,6 +127,12 @@
   const inputPanelToggle = document.getElementById("inputPanelToggle");
   inputPanelToggle.addEventListener("click", () => {
     inputPanel.classList.toggle("collapsed");
+  });
+
+  const srInputPanel = document.getElementById("srInputPanel");
+  const srInputPanelToggle = document.getElementById("srInputPanelToggle");
+  srInputPanelToggle.addEventListener("click", () => {
+    srInputPanel.classList.toggle("collapsed");
   });
 
   /* =========================================================
@@ -166,6 +185,210 @@
   const WHITE = "#f6f2ee";
 
   let img = null;
+
+  /* =========================================================
+     崩壊：スターレイル — 会話ボックス描画
+     原神側と完全に独立した状態・定数・関数を使う(原神の挙動に影響させないため)。
+  ========================================================= */
+  const srCanvas = document.getElementById("srCanvas");
+  const srCtx = srCanvas.getContext("2d");
+  const srCanvasDropArea = document.getElementById("srCanvasDropArea");
+  const srImageInput = document.getElementById("srImageInput");
+  const srNameInput = document.getElementById("srNameInput");
+  const srBodyInput = document.getElementById("srBodyInput");
+  const srUidInput = document.getElementById("srUidInput");
+  const srDownloadBtn = document.getElementById("srDownloadBtn");
+
+  const FONT_SR = '"Starrail", sans-serif';
+
+  // Reference metrics, pixel-scanned from スタレ一部.png (reference width 1908).
+  const REF_W_SR = 1908;
+  const NAME_Y_SR = 38;
+  const LINE_Y_SR = 55;
+  const BODY_START_Y_SR = 89;
+  const BODY_LINE_HEIGHT_SR = 34;
+  const BODY_MIN_LINES_SR = 2;
+  const BOTTOM_PAD_SR = 194;
+  const CHEVRON_FROM_BOTTOM_SR = 69;
+  const UID_FROM_BOTTOM_SR = 19;
+  const LEFT_MARGIN_SR = 261;
+  const RIGHT_MARGIN_SR = 273;
+  const UID_LEFT_MARGIN_SR = 36;
+  const DECOR_LINE_WIDTH_SR = 1700;
+  const CHEVRON_SIZE_SR = 24;
+  const NAME_FONT_SR = 28;
+  const BODY_FONT_SR = 24;
+  const UID_FONT_SR = 16;
+
+  const GOLD_SR = "#f0c56a";
+  const WHITE_SR = "#f6f2ee";
+
+  let srImg = null;
+
+  const srDecorLineImg = new Image();
+  const srDecorChevronImg = new Image();
+  function onSrDecorLoaded() {
+    renderSR();
+  }
+  srDecorLineImg.onload = onSrDecorLoaded;
+  srDecorChevronImg.onload = onSrDecorLoaded;
+  srDecorLineImg.src = "Image/Starrail_00.png";
+  srDecorChevronImg.src = "Image/Starrail_01.png";
+
+  function wrapBodySR(text, maxWidth) {
+    const paragraphs = text.replace(/\r\n/g, "\n").split("\n");
+    const lines = [];
+    paragraphs.forEach((para) => {
+      if (para.length === 0) {
+        lines.push("");
+        return;
+      }
+      let current = "";
+      for (const ch of para) {
+        const test = current + ch;
+        if (srCtx.measureText(test).width > maxWidth && current.length > 0) {
+          lines.push(current);
+          current = ch;
+        } else {
+          current = test;
+        }
+      }
+      if (current.length > 0) lines.push(current);
+    });
+    return (lines.length ? lines : [""]).slice(0, BODY_MIN_LINES_SR);
+  }
+
+  function drawDecorLineSR(cx, y, s) {
+    if (!srDecorLineImg.complete || !srDecorLineImg.naturalWidth) return;
+    const w = DECOR_LINE_WIDTH_SR * s;
+    const h = (w / srDecorLineImg.naturalWidth) * srDecorLineImg.naturalHeight;
+    srCtx.drawImage(srDecorLineImg, cx - w / 2, y - h / 2, w, h);
+  }
+
+  function drawDecorChevronSR(cx, cy, s) {
+    if (!srDecorChevronImg.complete || !srDecorChevronImg.naturalWidth) return;
+    const w = CHEVRON_SIZE_SR * s;
+    const h = (w / srDecorChevronImg.naturalWidth) * srDecorChevronImg.naturalHeight;
+    srCtx.drawImage(srDecorChevronImg, cx - w / 2, cy - h / 2, w, h);
+  }
+
+  function renderSR() {
+    if (!srImg) return;
+    const W = srCanvas.width;
+    const H = srCanvas.height;
+    const s = W / REF_W_SR;
+
+    srCtx.clearRect(0, 0, W, H);
+    srCtx.drawImage(srImg, 0, 0, W, H);
+
+    const name = srNameInput.value.trim();
+    const bodyRaw = srBodyInput.value;
+    const uid = srUidInput.value.trim();
+
+    srCtx.font = `${Math.round(BODY_FONT_SR * s)}px ${FONT_SR}`;
+    const maxTextWidth = W - (LEFT_MARGIN_SR + RIGHT_MARGIN_SR) * s;
+    const lines = bodyRaw.trim() ? wrapBodySR(bodyRaw.trim(), maxTextWidth) : [];
+
+    // Same fixed-box idea as Genshin: boxTop is always the BODY_MIN_LINES_SR
+    // reference height, so name/line/body never move based on line count.
+    const boxHeight = (BODY_START_Y_SR + (BODY_MIN_LINES_SR - 1) * BODY_LINE_HEIGHT_SR + BOTTOM_PAD_SR) * s;
+    const boxTop = H - boxHeight;
+
+    const cx = W / 2;
+
+    srCtx.shadowColor = "rgba(0,0,0,0.6)";
+    srCtx.shadowBlur = 5 * s;
+    srCtx.shadowOffsetY = 1 * s;
+
+    if (name) {
+      srCtx.textAlign = "center";
+      srCtx.font = `${Math.round(NAME_FONT_SR * s)}px ${FONT_SR}`;
+      srCtx.fillStyle = GOLD_SR;
+      srCtx.fillText(name, cx, boxTop + NAME_Y_SR * s);
+
+      drawDecorLineSR(cx, boxTop + LINE_Y_SR * s, s);
+    }
+
+    if (lines.length) {
+      srCtx.textAlign = "left";
+      srCtx.font = `${Math.round(BODY_FONT_SR * s)}px ${FONT_SR}`;
+      srCtx.fillStyle = WHITE_SR;
+      lines.forEach((line, i) => {
+        const y = boxTop + (BODY_START_Y_SR + i * BODY_LINE_HEIGHT_SR) * s;
+        srCtx.fillText(line, LEFT_MARGIN_SR * s, y);
+      });
+    }
+
+    srCtx.shadowColor = "transparent";
+    srCtx.shadowBlur = 0;
+    srCtx.shadowOffsetY = 0;
+
+    drawDecorChevronSR(cx, H - CHEVRON_FROM_BOTTOM_SR * s, s);
+
+    if (uid) {
+      srCtx.textAlign = "left";
+      srCtx.font = `${Math.round(UID_FONT_SR * s)}px ${FONT_SR}`;
+      srCtx.fillStyle = "rgba(255,255,255,0.85)";
+      srCtx.fillText(`UID:${uid}`, UID_LEFT_MARGIN_SR * s, H - UID_FROM_BOTTOM_SR * s);
+    }
+  }
+
+  function loadImageSR(src) {
+    const image = new Image();
+    image.onload = () => {
+      srImg = image;
+      srCanvas.width = image.naturalWidth;
+      srCanvas.height = image.naturalHeight;
+      srCanvasDropArea.classList.add("has-image");
+      srDownloadBtn.disabled = false;
+      const lang = document.querySelector('input[name="lang"]:checked')?.value || "ja";
+      applyLang(lang);
+      renderSR();
+    };
+    image.src = src;
+  }
+
+  function loadFileSR(file) {
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => loadImageSR(e.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  srImageInput.addEventListener("change", (e) => {
+    if (e.target.files && e.target.files[0]) loadFileSR(e.target.files[0]);
+  });
+
+  srCanvasDropArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    srCanvasDropArea.classList.add("drag");
+  });
+  srCanvasDropArea.addEventListener("dragleave", () => srCanvasDropArea.classList.remove("drag"));
+  srCanvasDropArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    srCanvasDropArea.classList.remove("drag");
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFileSR(e.dataTransfer.files[0]);
+  });
+
+  [srNameInput, srBodyInput, srUidInput].forEach((el) => {
+    el.addEventListener("input", renderSR);
+  });
+
+  srDownloadBtn.addEventListener("click", () => {
+    if (!srImg) return;
+    srCanvas.toBlob((blob) => {
+      if (!blob) {
+        alert("画像の書き出しに失敗しました。file:// で直接開いている場合は、ローカルサーバー経由、または公開後のページでお試しください。");
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `dialogue_sr_${Date.now()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, "image/png");
+  });
 
   const decorLineImg = new Image();
   const decorDiamondImg = new Image();
@@ -383,20 +606,32 @@
      file://で開いた際にローカル画像描画でcanvasがtaintedになり失敗するため使わない)
   ========================================================= */
   const imageModal = document.getElementById("imageModal");
+  let modalCanvas = null;
+  let modalHomeArea = null;
 
-  function openModal() {
-    if (!img) return;
-    imageModal.appendChild(canvas);
+  // Shared by both games: opens whichever canvas/drop-area called it, and
+  // remembers where to return it to on close — a single modal element is
+  // reused, but only one canvas is ever inside it at a time.
+  function openModalWith(canvasEl, homeArea, hasImage) {
+    if (!hasImage) return;
+    modalCanvas = canvasEl;
+    modalHomeArea = homeArea;
+    imageModal.appendChild(canvasEl);
     imageModal.classList.add("open");
   }
 
   function closeModal() {
     if (!imageModal.classList.contains("open")) return;
     imageModal.classList.remove("open");
-    canvasDropArea.insertBefore(canvas, canvasDropArea.firstChild);
+    if (modalCanvas && modalHomeArea) {
+      modalHomeArea.insertBefore(modalCanvas, modalHomeArea.firstChild);
+    }
+    modalCanvas = null;
+    modalHomeArea = null;
   }
 
-  canvasDropArea.addEventListener("click", openModal);
+  canvasDropArea.addEventListener("click", () => openModalWith(canvas, canvasDropArea, !!img));
+  srCanvasDropArea.addEventListener("click", () => openModalWith(srCanvas, srCanvasDropArea, !!srImg));
   imageModal.addEventListener("click", closeModal);
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeModal();
@@ -445,5 +680,10 @@
       document.fonts.load(`30px ${FONT}`),
       document.fonts.load(`19px ${FONT}`),
     ]).then(render);
+    Promise.all([
+      document.fonts.load(`${NAME_FONT_SR}px ${FONT_SR}`),
+      document.fonts.load(`${BODY_FONT_SR}px ${FONT_SR}`),
+      document.fonts.load(`${UID_FONT_SR}px ${FONT_SR}`),
+    ]).then(renderSR);
   }
 })();
