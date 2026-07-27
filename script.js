@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v12";
+  const BUILD_VERSION = "v13";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -209,16 +209,20 @@
   const BODY_LINE_HEIGHT_SR = 34;
   const BODY_MIN_LINES_SR = 2;
   const BOTTOM_PAD_SR = 194;
+  // Shifts name/line/body down by ~1 character's height, without moving the
+  // bottom-anchored chevron/UID (same idea as Genshin's GLOBAL_Y_OFFSET).
+  const GLOBAL_Y_OFFSET_SR = 28;
   const CHEVRON_FROM_BOTTOM_SR = 69;
   const UID_FROM_BOTTOM_SR = 19;
   const LEFT_MARGIN_SR = 261;
   const RIGHT_MARGIN_SR = 273;
   const UID_LEFT_MARGIN_SR = 36;
   const DECOR_LINE_WIDTH_SR = 1700;
-  const CHEVRON_SIZE_SR = 24;
-  const NAME_FONT_SR = 28;
-  const BODY_FONT_SR = 24;
+  const CHEVRON_SIZE_SR = 48;
+  const NAME_FONT_SR = 31;
+  const BODY_FONT_SR = 26;
   const UID_FONT_SR = 16;
+  const TEXT_STROKE_WIDTH_SR = 3;
 
   const GOLD_SR = "#f0c56a";
   const WHITE_SR = "#f6f2ee";
@@ -292,17 +296,21 @@
     // Same fixed-box idea as Genshin: boxTop is always the BODY_MIN_LINES_SR
     // reference height, so name/line/body never move based on line count.
     const boxHeight = (BODY_START_Y_SR + (BODY_MIN_LINES_SR - 1) * BODY_LINE_HEIGHT_SR + BOTTOM_PAD_SR) * s;
-    const boxTop = H - boxHeight;
+    const boxTop = H - boxHeight + GLOBAL_Y_OFFSET_SR * s;
 
     const cx = W / 2;
 
     srCtx.shadowColor = "rgba(0,0,0,0.6)";
     srCtx.shadowBlur = 5 * s;
     srCtx.shadowOffsetY = 1 * s;
+    srCtx.lineWidth = TEXT_STROKE_WIDTH_SR * s;
+    srCtx.strokeStyle = "#000000";
+    srCtx.lineJoin = "round";
 
     if (name) {
       srCtx.textAlign = "center";
       srCtx.font = `${Math.round(NAME_FONT_SR * s)}px ${FONT_SR}`;
+      srCtx.strokeText(name, cx, boxTop + NAME_Y_SR * s);
       srCtx.fillStyle = GOLD_SR;
       srCtx.fillText(name, cx, boxTop + NAME_Y_SR * s);
 
@@ -315,6 +323,7 @@
       srCtx.fillStyle = WHITE_SR;
       lines.forEach((line, i) => {
         const y = boxTop + (BODY_START_Y_SR + i * BODY_LINE_HEIGHT_SR) * s;
+        srCtx.strokeText(line, LEFT_MARGIN_SR * s, y);
         srCtx.fillText(line, LEFT_MARGIN_SR * s, y);
       });
     }
