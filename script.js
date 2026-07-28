@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v23";
+  const BUILD_VERSION = "v24";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -516,7 +516,7 @@
     const bodyRaw = bodyInput.value;
     const uid = uidInput.value.trim();
 
-    ctx.font = `${Math.round(30 * s)}px ${FONT}`;
+    ctx.font = `${Math.round(31 * s)}px ${FONT}`;
     const maxTextWidth = W - (LEFT_MARGIN + RIGHT_MARGIN) * s;
     const lines = bodyRaw.trim() ? wrapBody(bodyRaw.trim(), maxTextWidth) : [];
 
@@ -609,7 +609,7 @@
 
     if (lines.length) {
       ctx.textAlign = "center";
-      ctx.font = `${Math.round(30 * s)}px ${FONT}`;
+      ctx.font = `${Math.round(31 * s)}px ${FONT}`;
       ctx.fillStyle = WHITE;
       lines.forEach((line, i) => {
         const y = boxTop + (BODY_START_Y + i * BODY_LINE_HEIGHT) * s - noSubtitleLiftBody;
@@ -739,7 +739,7 @@
     Promise.all([
       document.fonts.load(`34px ${FONT}`),
       document.fonts.load(`22px ${FONT}`),
-      document.fonts.load(`30px ${FONT}`),
+      document.fonts.load(`31px ${FONT}`),
       document.fonts.load(`19px ${FONT}`),
     ]).then(render);
     Promise.all([
