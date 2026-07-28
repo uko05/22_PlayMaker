@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v31";
+  const BUILD_VERSION = "v32";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -246,7 +246,7 @@
   // Faint dark background: unlike Genshin's elliptical falloff, this is
   // uniform across the full width and only fades vertically, gradually
   // from the name down to the image bottom (see bgFadeReach in renderSR).
-  const BG_CENTER_ALPHA_SR = 0.4;
+  const BG_CENTER_ALPHA_SR = 0.6;
 
   const GOLD_SR = "#dbc291";
   const WHITE_SR = "#f6f2ee";
