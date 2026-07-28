@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v27";
+  const BUILD_VERSION = "v28";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -327,20 +327,25 @@
     const lineY = boxTop + LINE_Y_SR * s;
 
     // Faint dark background, uniform across the full width (no horizontal
-    // falloff like Genshin). Starts right at the name and fades in gradually
-    // all the way down to the bottom of the image — full strength only at
-    // the very bottom, no plateau partway through.
+    // falloff like Genshin). Two zones: from the image bottom up to the
+    // middle of the dialogue text, it stays at full strength (a plateau);
+    // above that, it fades out evenly up to the name, reaching 0 there.
     const bgStartY = boxTop + NAME_Y_SR * s;
+    const bgPlateauTopY =
+      boxTop + (BODY_START_Y_SR + BODY_EXTRA_Y_SR + ((BODY_MIN_LINES_SR - 1) * BODY_LINE_HEIGHT_SR) / 2) * s;
     const bgRowTop = Math.max(0, Math.floor(bgStartY));
     if (bgRowTop < H) {
-      const bgFadeReach = H - bgStartY;
+      const bgFadeReach = bgPlateauTopY - bgStartY;
       const region = srCtx.getImageData(0, bgRowTop, W, H - bgRowTop);
       const px = region.data;
       const dR = 5, dG = 6, dB = 10;
       for (let row = 0; row < region.height; row++) {
         const y = bgRowTop + row;
-        const dy = y - bgStartY;
-        const t = bgFadeReach > 0 ? Math.min(Math.max(dy / bgFadeReach, 0), 1) : 1;
+        const t = y >= bgPlateauTopY
+          ? 1
+          : bgFadeReach > 0
+            ? Math.min(Math.max((y - bgStartY) / bgFadeReach, 0), 1)
+            : 1;
         const alpha = BG_CENTER_ALPHA_SR * t;
         for (let x = 0; x < W; x++) {
           const i = (row * W + x) * 4;
