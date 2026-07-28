@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v21";
+  const BUILD_VERSION = "v22";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -184,10 +184,15 @@
   const DECOR_DIAMOND_SIZE = 24;
   // Full-width single-piece divider, used instead of the flanking pair when
   // there's no subtitle text (役職なし).
-  const DECOR_FULL_WIDTH = 950;
+  const DECOR_FULL_WIDTH = 950 * 1.3;
+  // When there's no subtitle, the full-width divider and the body text lift
+  // up by ~1 character's height (background/box stay put).
+  const NO_SUBTITLE_LIFT = 30;
+  const TEXT_STROKE_WIDTH = 1.5;
+  const TEXT_STROKE_COLOR = "#555555";
 
-  const GOLD = "#f0c25a";
-  const ORANGE = "#e9a44f";
+  const GOLD = "#ffc300";
+  const ORANGE = "#dca808";
   const WHITE = "#f6f2ee";
 
   let img = null;
@@ -572,9 +577,15 @@
     ctx.shadowColor = "rgba(0,0,0,0.6)";
     ctx.shadowBlur = 6 * s;
     ctx.shadowOffsetY = 1 * s;
+    ctx.lineWidth = TEXT_STROKE_WIDTH * s;
+    ctx.strokeStyle = TEXT_STROKE_COLOR;
+    ctx.lineJoin = "round";
+
+    const noSubtitleLift = !subtitleToggle.checked ? NO_SUBTITLE_LIFT * s : 0;
 
     if (name) {
       ctx.font = `${Math.round(34 * s)}px ${FONT}`;
+      ctx.strokeText(name, cx, boxTop + NAME_Y * s);
       ctx.fillStyle = GOLD;
       ctx.fillText(name, cx, boxTop + NAME_Y * s);
     }
@@ -585,10 +596,11 @@
       const decorY = boxTop + (SUBTITLE_Y - 7) * s;
       drawDecorLine(cx, decorY, s, subtitleHalfWidth + DECOR_SIDE_GAP * s);
 
+      ctx.strokeText(subtitle, cx, boxTop + SUBTITLE_Y * s);
       ctx.fillStyle = ORANGE;
       ctx.fillText(subtitle, cx, boxTop + SUBTITLE_Y * s);
     } else if (!subtitleToggle.checked) {
-      const decorY = boxTop + (SUBTITLE_Y - 7) * s;
+      const decorY = boxTop + (SUBTITLE_Y - 7) * s - noSubtitleLift;
       drawDecorLineFull(cx, decorY, s);
     }
 
@@ -597,7 +609,8 @@
       ctx.font = `${Math.round(30 * s)}px ${FONT}`;
       ctx.fillStyle = WHITE;
       lines.forEach((line, i) => {
-        const y = boxTop + (BODY_START_Y + i * BODY_LINE_HEIGHT) * s;
+        const y = boxTop + (BODY_START_Y + i * BODY_LINE_HEIGHT) * s - noSubtitleLift;
+        ctx.strokeText(line, cx, y);
         ctx.fillText(line, cx, y);
       });
     }
