@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v25";
+  const BUILD_VERSION = "v26";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -243,6 +243,12 @@
   const BODY_FONT_SR = 28;
   const UID_FONT_SR = 16;
   const TEXT_STROKE_WIDTH_SR = 1.5;
+  // Faint dark background below the name/dialogue divider line: unlike
+  // Genshin's elliptical falloff, this is uniform across the full width and
+  // only fades vertically — thin right at the line, fully dark by
+  // BG_FADE_REACH_SR further down, and stays that way to the image bottom.
+  const BG_FADE_REACH_SR = 90;
+  const BG_CENTER_ALPHA_SR = 0.4;
 
   const GOLD_SR = "#dbc291";
   const WHITE_SR = "#f6f2ee";
@@ -320,6 +326,31 @@
     const boxTop = H - boxHeight + GLOBAL_Y_OFFSET_SR * s;
 
     const cx = W / 2;
+    const lineY = boxTop + LINE_Y_SR * s;
+
+    // Faint dark background below the divider line, uniform across the full
+    // width (no horizontal falloff), fading in from the line down to
+    // BG_FADE_REACH_SR, then holding steady to the bottom of the image.
+    const bgFadeReach = BG_FADE_REACH_SR * s;
+    const bgRowTop = Math.max(0, Math.floor(lineY));
+    if (bgRowTop < H) {
+      const region = srCtx.getImageData(0, bgRowTop, W, H - bgRowTop);
+      const px = region.data;
+      const dR = 5, dG = 6, dB = 10;
+      for (let row = 0; row < region.height; row++) {
+        const y = bgRowTop + row;
+        const dy = y - lineY;
+        const t = bgFadeReach > 0 ? Math.min(Math.max(dy / bgFadeReach, 0), 1) : 1;
+        const alpha = BG_CENTER_ALPHA_SR * t;
+        for (let x = 0; x < W; x++) {
+          const i = (row * W + x) * 4;
+          px[i] = dR * alpha + px[i] * (1 - alpha);
+          px[i + 1] = dG * alpha + px[i + 1] * (1 - alpha);
+          px[i + 2] = dB * alpha + px[i + 2] * (1 - alpha);
+        }
+      }
+      srCtx.putImageData(region, 0, bgRowTop);
+    }
 
     srCtx.shadowColor = "rgba(0,0,0,0.6)";
     srCtx.shadowBlur = 5 * s;
@@ -335,7 +366,7 @@
       srCtx.fillStyle = GOLD_SR;
       srCtx.fillText(name, cx, boxTop + NAME_Y_SR * s);
 
-      drawDecorLineSR(cx, boxTop + LINE_Y_SR * s, s);
+      drawDecorLineSR(cx, lineY, s);
     }
 
     if (lines.length) {
