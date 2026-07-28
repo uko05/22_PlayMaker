@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v28";
+  const BUILD_VERSION = "v29";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -328,11 +328,11 @@
 
     // Faint dark background, uniform across the full width (no horizontal
     // falloff like Genshin). Two zones: from the image bottom up to the
-    // middle of the dialogue text, it stays at full strength (a plateau);
+    // bottom of the dialogue text, it stays at full strength (a plateau);
     // above that, it fades out evenly up to the name, reaching 0 there.
     const bgStartY = boxTop + NAME_Y_SR * s;
     const bgPlateauTopY =
-      boxTop + (BODY_START_Y_SR + BODY_EXTRA_Y_SR + ((BODY_MIN_LINES_SR - 1) * BODY_LINE_HEIGHT_SR) / 2) * s;
+      boxTop + (BODY_START_Y_SR + BODY_EXTRA_Y_SR + (BODY_MIN_LINES_SR - 1) * BODY_LINE_HEIGHT_SR) * s;
     const bgRowTop = Math.max(0, Math.floor(bgStartY));
     if (bgRowTop < H) {
       const bgFadeReach = bgPlateauTopY - bgStartY;
