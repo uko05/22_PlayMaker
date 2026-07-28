@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v22";
+  const BUILD_VERSION = "v23";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -184,10 +184,12 @@
   const DECOR_DIAMOND_SIZE = 24;
   // Full-width single-piece divider, used instead of the flanking pair when
   // there's no subtitle text (役職なし).
-  const DECOR_FULL_WIDTH = 950 * 1.3;
+  const DECOR_FULL_WIDTH = 950 * 1.3 * 1.05;
   // When there's no subtitle, the full-width divider and the body text lift
-  // up by ~1 character's height (background/box stay put).
-  const NO_SUBTITLE_LIFT = 30;
+  // up from their normal (with-subtitle) position — independently tuned
+  // per element, each starting from a ~1-character (30) base lift.
+  const NO_SUBTITLE_LIFT_LINE = 30 - 15; // nudged back down ~0.5 character
+  const NO_SUBTITLE_LIFT_BODY = 30 - 9; // nudged back down ~0.3 character
   const TEXT_STROKE_WIDTH = 1.5;
   const TEXT_STROKE_COLOR = "#555555";
 
@@ -581,7 +583,8 @@
     ctx.strokeStyle = TEXT_STROKE_COLOR;
     ctx.lineJoin = "round";
 
-    const noSubtitleLift = !subtitleToggle.checked ? NO_SUBTITLE_LIFT * s : 0;
+    const noSubtitleLiftLine = !subtitleToggle.checked ? NO_SUBTITLE_LIFT_LINE * s : 0;
+    const noSubtitleLiftBody = !subtitleToggle.checked ? NO_SUBTITLE_LIFT_BODY * s : 0;
 
     if (name) {
       ctx.font = `${Math.round(34 * s)}px ${FONT}`;
@@ -600,7 +603,7 @@
       ctx.fillStyle = ORANGE;
       ctx.fillText(subtitle, cx, boxTop + SUBTITLE_Y * s);
     } else if (!subtitleToggle.checked) {
-      const decorY = boxTop + (SUBTITLE_Y - 7) * s - noSubtitleLift;
+      const decorY = boxTop + (SUBTITLE_Y - 7) * s - noSubtitleLiftLine;
       drawDecorLineFull(cx, decorY, s);
     }
 
@@ -609,7 +612,7 @@
       ctx.font = `${Math.round(30 * s)}px ${FONT}`;
       ctx.fillStyle = WHITE;
       lines.forEach((line, i) => {
-        const y = boxTop + (BODY_START_Y + i * BODY_LINE_HEIGHT) * s - noSubtitleLift;
+        const y = boxTop + (BODY_START_Y + i * BODY_LINE_HEIGHT) * s - noSubtitleLiftBody;
         ctx.strokeText(line, cx, y);
         ctx.fillText(line, cx, y);
       });
