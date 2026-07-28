@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v30";
+  const BUILD_VERSION = "v31";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -329,10 +329,12 @@
     // Faint dark background, uniform across the full width (no horizontal
     // falloff like Genshin). Two zones: from the image bottom up to the
     // plateau boundary, it stays at full strength; above that, it fades out
-    // evenly up to the name, reaching 0 there. The plateau boundary is set
-    // at half the height between the image bottom and the dialogue text's
-    // bottom line (requested: half as tall as when it matched that line).
-    const bgStartY = boxTop + NAME_Y_SR * s;
+    // evenly up to the zero point, reaching 0 there. The plateau boundary is
+    // set at half the height between the image bottom and the dialogue
+    // text's bottom line. The zero point sits ~4 lines above the name
+    // (rather than right at it) so the fade spans more distance and reads
+    // smoother/less noticeable within the visible name-to-plateau area.
+    const bgStartY = boxTop + NAME_Y_SR * s - 4 * BODY_LINE_HEIGHT_SR * s;
     const bgPlateauTopYAtBodyBottom =
       boxTop + (BODY_START_Y_SR + BODY_EXTRA_Y_SR + (BODY_MIN_LINES_SR - 1) * BODY_LINE_HEIGHT_SR) * s;
     const bgPlateauTopY = (H + bgPlateauTopYAtBodyBottom) / 2;
