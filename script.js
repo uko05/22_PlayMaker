@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v20";
+  const BUILD_VERSION = "v21";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -26,6 +26,7 @@
       placeholderName: "例: キャサリン",
       labelSubtitle: "役職 / サブタイトル(任意)",
       placeholderSubtitle: "例: 冒険者協会の受付係",
+      labelSubtitleToggle: "役職を表示する",
       labelBody: "セリフ本文",
       placeholderBody: "例: 星と深淵を目指せ！ようこそ、冒険者協会へ。",
       labelUid: "UID(任意)",
@@ -50,6 +51,7 @@
       placeholderName: "e.g. Katheryne",
       labelSubtitle: "Title / Subtitle (optional)",
       placeholderSubtitle: "e.g. Receptionist, Adventurers' Guild",
+      labelSubtitleToggle: "Show title/subtitle",
       labelBody: "Dialogue Text",
       placeholderBody: "e.g. Ad astra abyssosque! Welcome to the Adventurers' Guild.",
       labelUid: "UID (optional)",
@@ -144,6 +146,7 @@
   const imageInput = document.getElementById("imageInput");
   const nameInput = document.getElementById("nameInput");
   const subtitleInput = document.getElementById("subtitleInput");
+  const subtitleToggle = document.getElementById("subtitleToggle");
   const bodyInput = document.getElementById("bodyInput");
   const uidInput = document.getElementById("uidInput");
   const downloadBtn = document.getElementById("downloadBtn");
@@ -179,6 +182,9 @@
   const DECOR_LINE_OPACITY = 0.8;
   const DECOR_SIDE_GAP = 14;
   const DECOR_DIAMOND_SIZE = 24;
+  // Full-width single-piece divider, used instead of the flanking pair when
+  // there's no subtitle text (役職なし).
+  const DECOR_FULL_WIDTH = 950;
 
   const GOLD = "#f0c25a";
   const ORANGE = "#e9a44f";
@@ -409,6 +415,7 @@
 
   const decorLineImg = new Image();
   const decorDiamondImg = new Image();
+  const decorLineFullImg = new Image();
   let decorLoadCount = 0;
   function onDecorLoaded() {
     decorLoadCount++;
@@ -416,8 +423,10 @@
   }
   decorLineImg.onload = onDecorLoaded;
   decorDiamondImg.onload = onDecorLoaded;
+  decorLineFullImg.onload = onDecorLoaded;
   decorLineImg.src = "Image/Genshin_00.png";
   decorDiamondImg.src = "Image/Genshin_01.png";
+  decorLineFullImg.src = "Image/Genshin_02.png";
 
   function fitCanvasToImage() {
     canvas.width = img.naturalWidth;
@@ -467,6 +476,18 @@
     ctx.restore();
   }
 
+  function drawDecorLineFull(cx, y, s) {
+    // Genshin_02.png is a single complete divider (both diamond end-caps
+    // baked in) — drawn once, centered, no mirroring needed.
+    if (!decorLineFullImg.complete || !decorLineFullImg.naturalWidth) return;
+    const w = DECOR_FULL_WIDTH * s;
+    const h = (w / decorLineFullImg.naturalWidth) * decorLineFullImg.naturalHeight;
+    ctx.save();
+    ctx.globalAlpha = DECOR_LINE_OPACITY;
+    ctx.drawImage(decorLineFullImg, cx - w / 2, y - h / 2, w, h);
+    ctx.restore();
+  }
+
   function drawDecorDiamond(cx, cy, s) {
     if (!decorDiamondImg.complete || !decorDiamondImg.naturalWidth) return;
     const w = DECOR_DIAMOND_SIZE * s;
@@ -484,7 +505,7 @@
     ctx.drawImage(img, 0, 0, W, H);
 
     const name = nameInput.value.trim();
-    const subtitle = subtitleInput.value.trim();
+    const subtitle = subtitleToggle.checked ? subtitleInput.value.trim() : "";
     const bodyRaw = bodyInput.value;
     const uid = uidInput.value.trim();
 
@@ -566,6 +587,9 @@
 
       ctx.fillStyle = ORANGE;
       ctx.fillText(subtitle, cx, boxTop + SUBTITLE_Y * s);
+    } else if (!subtitleToggle.checked) {
+      const decorY = boxTop + (SUBTITLE_Y - 7) * s;
+      drawDecorLineFull(cx, decorY, s);
     }
 
     if (lines.length) {
@@ -667,6 +691,11 @@
 
   [nameInput, subtitleInput, bodyInput, uidInput].forEach((el) => {
     el.addEventListener("input", render);
+  });
+
+  subtitleToggle.addEventListener("change", () => {
+    subtitleInput.style.display = subtitleToggle.checked ? "" : "none";
+    render();
   });
 
   downloadBtn.addEventListener("click", () => {

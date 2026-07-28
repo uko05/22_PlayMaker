@@ -266,6 +266,22 @@ main {
   line-height: 1.5;
 }
 
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-field input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
 /* ========== 画像表示エリア（ドラッグ&ドロップ） ========== */
 .canvas-drop-area {
   position: relative;
