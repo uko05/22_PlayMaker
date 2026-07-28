@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v26";
+  const BUILD_VERSION = "v27";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -243,11 +243,9 @@
   const BODY_FONT_SR = 28;
   const UID_FONT_SR = 16;
   const TEXT_STROKE_WIDTH_SR = 1.5;
-  // Faint dark background below the name/dialogue divider line: unlike
-  // Genshin's elliptical falloff, this is uniform across the full width and
-  // only fades vertically — thin right at the line, fully dark by
-  // BG_FADE_REACH_SR further down, and stays that way to the image bottom.
-  const BG_FADE_REACH_SR = 90;
+  // Faint dark background: unlike Genshin's elliptical falloff, this is
+  // uniform across the full width and only fades vertically, gradually
+  // from the name down to the image bottom (see bgFadeReach in renderSR).
   const BG_CENTER_ALPHA_SR = 0.4;
 
   const GOLD_SR = "#dbc291";
@@ -328,18 +326,20 @@
     const cx = W / 2;
     const lineY = boxTop + LINE_Y_SR * s;
 
-    // Faint dark background below the divider line, uniform across the full
-    // width (no horizontal falloff), fading in from the line down to
-    // BG_FADE_REACH_SR, then holding steady to the bottom of the image.
-    const bgFadeReach = BG_FADE_REACH_SR * s;
-    const bgRowTop = Math.max(0, Math.floor(lineY));
+    // Faint dark background, uniform across the full width (no horizontal
+    // falloff like Genshin). Starts right at the name and fades in gradually
+    // all the way down to the bottom of the image — full strength only at
+    // the very bottom, no plateau partway through.
+    const bgStartY = boxTop + NAME_Y_SR * s;
+    const bgRowTop = Math.max(0, Math.floor(bgStartY));
     if (bgRowTop < H) {
+      const bgFadeReach = H - bgStartY;
       const region = srCtx.getImageData(0, bgRowTop, W, H - bgRowTop);
       const px = region.data;
       const dR = 5, dG = 6, dB = 10;
       for (let row = 0; row < region.height; row++) {
         const y = bgRowTop + row;
-        const dy = y - lineY;
+        const dy = y - bgStartY;
         const t = bgFadeReach > 0 ? Math.min(Math.max(dy / bgFadeReach, 0), 1) : 1;
         const alpha = BG_CENTER_ALPHA_SR * t;
         for (let x = 0; x < W; x++) {
@@ -370,13 +370,13 @@
     }
 
     if (lines.length) {
-      srCtx.textAlign = "left";
+      srCtx.textAlign = "center";
       srCtx.font = `${Math.round(BODY_FONT_SR * s)}px ${FONT_SR}`;
       srCtx.fillStyle = WHITE_SR;
       lines.forEach((line, i) => {
         const y = boxTop + (BODY_START_Y_SR + BODY_EXTRA_Y_SR + i * BODY_LINE_HEIGHT_SR) * s;
-        srCtx.strokeText(line, LEFT_MARGIN_SR * s, y);
-        srCtx.fillText(line, LEFT_MARGIN_SR * s, y);
+        srCtx.strokeText(line, cx, y);
+        srCtx.fillText(line, cx, y);
       });
     }
 
