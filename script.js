@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v43";
+  const BUILD_VERSION = "v44";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -527,6 +527,8 @@
   const LINE_FONT_MJ = 22;
   const LINE_MAX_WIDTH_MJ = 520;
   const LINE_MAX_LINES_MJ = 4;
+  // セリフ文字だけを少し下にずらすための調整量(裏のもや画像の位置には影響させない)。
+  const LINE_TEXT_Y_NUDGE_MJ = LINE_FONT_MJ / 2;
   const MIST_PAD_X_MJ = 60;
   const MIST_PAD_Y_MJ = 34;
   const TEXT_STROKE_WIDTH_MJ = 1.5;
@@ -690,7 +692,7 @@
       mjCtx.shadowColor = "rgba(0,0,0,0.5)";
       mjCtx.shadowBlur = 4 * gs;
       lnLines.forEach((line, i) => {
-        const y = groupCY + LINE_START_OFFSET_Y_MJ * gs + i * lineHeightPx;
+        const y = groupCY + (LINE_START_OFFSET_Y_MJ + LINE_TEXT_Y_NUDGE_MJ) * gs + i * lineHeightPx;
         mjCtx.strokeText(line, groupCX, y);
         mjCtx.fillText(line, groupCX, y);
       });
