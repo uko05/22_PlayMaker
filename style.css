@@ -74,19 +74,20 @@ header {
   top: 50%;
   transform: translateY(-50%);
   display: flex;
-  gap: 8px;
-  padding: 6px 8px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
 }
 
 .lang-option {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 0.72rem;
-  color: var(--text);
+  color: #333;
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
@@ -94,7 +95,6 @@ header {
 
 .lang-option input {
   cursor: pointer;
-  accent-color: var(--accent);
 }
 
 /* ========== メインモードタブ（原神 / スタレ） ========== */
@@ -305,6 +305,26 @@ main {
   border-style: solid;
   background: #11141c;
   cursor: zoom-in;
+}
+
+#mjCanvasDropArea.has-image {
+  cursor: grab;
+}
+
+#mjCanvasDropArea.has-image.dragging-group {
+  cursor: grabbing;
+}
+
+.mj-drag-hint {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+
+.field input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
 }
 
 .dialogue-canvas {

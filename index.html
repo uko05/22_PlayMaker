@@ -13,7 +13,7 @@
 <link rel="icon" sizes="192x192" href="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/favicon_io/android-chrome-192x192.png">
 <link rel="icon" sizes="512x512" href="https://cdn.jsdelivr.net/gh/uko05/99_SharedImage@main/00_common/favicon_io/android-chrome-512x512.png">
 
-<link rel="stylesheet" href="style.css?v=33">
+<link rel="stylesheet" href="style.css?v=43">
 </head>
 <body>
 
@@ -25,17 +25,18 @@
     <div class="lang-switch" aria-label="Language switch">
       <label class="lang-option">
         <input type="radio" name="lang" value="ja" checked>
-        <span data-i18n="langJa">日本語</span>
+        <span data-i18n="langJa">JP</span>
       </label>
       <label class="lang-option">
         <input type="radio" name="lang" value="en">
-        <span data-i18n="langEn">English</span>
+        <span data-i18n="langEn">EN</span>
       </label>
     </div>
   </div>
 
   <div class="main-mode-tab-bar" id="main-mode-tab-bar">
     <button class="main-mode-tab-btn active" data-mode="genshin" data-i18n="tabGenshin">原神</button>
+    <button class="main-mode-tab-btn" data-mode="majokai" data-i18n="tabMajokai">原神-魔女会</button>
     <button class="main-mode-tab-btn" data-mode="starrail" data-i18n="tabStarrail">崩壊：スターレイル</button>
   </div>
 </header>
@@ -126,6 +127,54 @@
     </div>
 
   </div>
+
+  <div id="majokai-panel" class="game-panel" style="display:none">
+
+    <div class="action-row">
+      <label class="btn-action" id="mjLoadImageLabel">
+        <span id="mjLoadImageText" data-i18n="btnLoadImage">画像読み込み</span>
+        <input type="file" id="mjImageInput" accept="image/*" hidden>
+      </label>
+      <button class="btn-action btn-primary" id="mjDownloadBtn" disabled data-i18n="btnSaveImage">Save Image</button>
+    </div>
+
+    <div class="input-panel" id="mjInputPanel">
+      <button class="input-panel-toggle" id="mjInputPanelToggle" type="button">
+        <span data-i18n="inputPanelTitle">テキスト入力</span>
+        <span class="toggle-arrow">▲</span>
+      </button>
+      <div class="input-panel-body" id="mjInputPanelBody">
+        <div class="field">
+          <label for="mjNameInput" data-i18n="labelMjName">名前</label>
+          <input type="text" id="mjNameInput" data-i18n-placeholder="placeholderMjName" placeholder="例: アリス" maxlength="30">
+        </div>
+        <div class="field">
+          <label for="mjReadingInput" data-i18n="labelMjReading">呼び方(任意)</label>
+          <input type="text" id="mjReadingInput" data-i18n-placeholder="placeholderMjReading" placeholder="例: Alice" maxlength="30">
+        </div>
+        <div class="field">
+          <label for="mjSubtitleInput" data-i18n="labelMjSubtitle">二つ名 / 肩書(任意)</label>
+          <textarea id="mjSubtitleInput" data-i18n-placeholder="placeholderMjSubtitle" placeholder="例: 「諸世界の大冒険者」「悪い悪い大魔王」&#10;「旧モンドの守護者」とかとか…" maxlength="120"></textarea>
+        </div>
+        <div class="field">
+          <label for="mjLineInput" data-i18n="labelMjLine">セリフ(任意)</label>
+          <textarea id="mjLineInput" data-i18n-placeholder="placeholderMjLine" placeholder="例: でも絶対外せないのは――&#10;「世界一かわいいクレーのママ」ね！" maxlength="120"></textarea>
+        </div>
+        <div class="field">
+          <label for="mjScaleInput" data-i18n="labelMjScale">エンブレムの拡大縮小</label>
+          <input type="range" id="mjScaleInput" min="0.5" max="2" step="0.01" value="1">
+        </div>
+        <button class="btn-action" id="mjResetPosBtn" type="button" data-i18n="btnMjReset">位置・拡大率をリセット</button>
+      </div>
+    </div>
+
+    <div class="canvas-drop-area" id="mjCanvasDropArea">
+      <canvas id="mjCanvas" class="dialogue-canvas" width="1920" height="1080"></canvas>
+      <div class="drop-hint" id="mjDropHint" data-i18n="dropHint">画像をここにドラッグ&ドロップ<br>または上の「画像読み込み」から選択してください</div>
+    </div>
+    <p class="mj-drag-hint" id="mjDragHint" data-i18n="mjDragHint">画像の上をドラッグでエンブレム一式を移動、ホイールで拡大縮小できます</p>
+
+  </div>
 </main>
 
 <footer class="app-footer">
@@ -139,7 +188,7 @@
 
 <div class="build-tag" id="buildTag">?</div>
 
-<script src="script.js?v=33"></script>
+<script src="script.js?v=43"></script>
 
 <!-- 共通サイドバー -->
 <script src="https://uko05.github.io/TopPage00/shared/sidebar.js"></script>

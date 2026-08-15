@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v33";
+  const BUILD_VERSION = "v43";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -14,10 +14,11 @@
   const dict = {
     ja: {
       siteTitle: "原神・スタレ画面メーカー",
-      langJa: "日本語",
-      langEn: "English",
+      langJa: "JP",
+      langEn: "EN",
       tabGenshin: "原神",
       tabStarrail: "崩壊：スターレイル",
+      tabMajokai: "原神-魔女会",
       btnLoadImage: "画像読み込み",
       btnChangeImage: "画像を変更",
       btnSaveImage: "Save Image",
@@ -36,13 +37,25 @@
       placeholderNameSr: "例: ヘルタ",
       placeholderBodySr: "例: 「模擬宇宙」のテストを忘れないでね。",
       placeholderUidSr: "例: 833234573",
+      labelMjName: "名前",
+      placeholderMjName: "例: アリス",
+      labelMjReading: "呼び方(任意)",
+      placeholderMjReading: "例: Alice",
+      labelMjSubtitle: "二つ名 / 肩書(任意)",
+      placeholderMjSubtitle: "例: 「諸世界の大冒険者」「悪い悪い大魔王」\n「旧モンドの守護者」とかとか…",
+      labelMjLine: "セリフ(任意)",
+      placeholderMjLine: "例: でも絶対外せないのは――\n「世界一かわいいクレーのママ」ね！",
+      labelMjScale: "エンブレムの拡大縮小",
+      btnMjReset: "位置・拡大率をリセット",
+      mjDragHint: "画像の上をドラッグでエンブレム一式を移動、ホイールで拡大縮小できます",
     },
     en: {
       siteTitle: "Genshin / Star Rail Screen Maker",
-      langJa: "Japanese",
-      langEn: "English",
+      langJa: "JP",
+      langEn: "EN",
       tabGenshin: "Genshin",
       tabStarrail: "Honkai: Star Rail",
+      tabMajokai: "Genshin - Hexenzirkel",
       btnLoadImage: "Load Image",
       btnChangeImage: "Change Image",
       btnSaveImage: "Save Image",
@@ -61,6 +74,17 @@
       placeholderNameSr: "e.g. Herta",
       placeholderBodySr: "e.g. Don't forget to test my Simulated Universe!",
       placeholderUidSr: "e.g. 833234573",
+      labelMjName: "Name",
+      placeholderMjName: "e.g. Alice",
+      labelMjReading: "Alias (optional)",
+      placeholderMjReading: "e.g. Alice",
+      labelMjSubtitle: "Epithets / Titles (optional)",
+      placeholderMjSubtitle: "e.g. \"World-Traveling Adventurer\" \"Wicked Evil Overlord\"\n\"Guardian of Old Mondstadt\" and so on...",
+      labelMjLine: "Line (optional)",
+      placeholderMjLine: "e.g. But there's one title I'll never give up--\n\"World's Cutest Mother of Klee\"!",
+      labelMjScale: "Emblem Scale",
+      btnMjReset: "Reset Position & Scale",
+      mjDragHint: "Drag over the image to move the emblem set, scroll to resize it",
     },
   };
 
@@ -97,6 +121,13 @@
       srLoadText.textContent = d.btnChangeImage;
     }
 
+    const mjLoadText = document.getElementById("mjLoadImageText");
+    if (mjLoadText && !mjImg) {
+      mjLoadText.textContent = d.btnLoadImage;
+    } else if (mjLoadText && mjImg) {
+      mjLoadText.textContent = d.btnChangeImage;
+    }
+
     document.documentElement.lang = lang;
   }
 
@@ -119,6 +150,7 @@
       const mode = btn.dataset.mode;
       document.getElementById("genshin-panel").style.display = mode === "genshin" ? "" : "none";
       document.getElementById("starrail-panel").style.display = mode === "starrail" ? "" : "none";
+      document.getElementById("majokai-panel").style.display = mode === "majokai" ? "" : "none";
     });
   });
 
@@ -450,6 +482,339 @@
     }, "image/png");
   });
 
+  /* =========================================================
+     魔女会 — 名前紹介パネル描画
+     原神/スタレ側と完全に独立した状態・定数・関数を使う。
+     ①名前・②呼び方・③二つ名/肩書・④セリフ をひとまとまりの
+     「エンブレム一式」として扱い、ドラッグで移動・ホイール/スライダーで
+     拡大縮小できる(mjOffsetX/Y, mjScale)。
+  ========================================================= */
+  const mjInputPanel = document.getElementById("mjInputPanel");
+  const mjInputPanelToggle = document.getElementById("mjInputPanelToggle");
+  mjInputPanelToggle.addEventListener("click", () => {
+    mjInputPanel.classList.toggle("collapsed");
+  });
+
+  const mjCanvas = document.getElementById("mjCanvas");
+  const mjCtx = mjCanvas.getContext("2d");
+  const mjCanvasDropArea = document.getElementById("mjCanvasDropArea");
+  const mjImageInput = document.getElementById("mjImageInput");
+  const mjNameInput = document.getElementById("mjNameInput");
+  const mjReadingInput = document.getElementById("mjReadingInput");
+  const mjSubtitleInput = document.getElementById("mjSubtitleInput");
+  const mjLineInput = document.getElementById("mjLineInput");
+  const mjScaleInput = document.getElementById("mjScaleInput");
+  const mjResetPosBtn = document.getElementById("mjResetPosBtn");
+  const mjDownloadBtn = document.getElementById("mjDownloadBtn");
+
+  // Reference metrics, pixel-measured from Alice.jpg / niko.jpg (1200px-wide
+  // reference screenshots) with a 50px grid overlay.
+  const REF_W_MJ = 1200;
+  const CX_MJ = 285;
+  const CY_MJ = 200;
+  const BADGE_DIAM_MJ = 430;
+  const READING_OFFSET_Y_MJ = -96;
+  const READING_FONT_MJ = 20;
+  const NAME_OFFSET_Y_MJ = -8;
+  const NAME_FONT_MJ = 100;
+  const SUBTITLE_START_OFFSET_Y_MJ = 62;
+  const SUBTITLE_LINE_HEIGHT_MJ = 28;
+  const SUBTITLE_FONT_MJ = 18;
+  const SUBTITLE_MAX_WIDTH_MJ = 380;
+  const SUBTITLE_MAX_LINES_MJ = 4;
+  const LINE_START_OFFSET_Y_MJ = 225;
+  const LINE_LINE_HEIGHT_MJ = 32;
+  const LINE_FONT_MJ = 22;
+  const LINE_MAX_WIDTH_MJ = 520;
+  const LINE_MAX_LINES_MJ = 4;
+  const MIST_PAD_X_MJ = 60;
+  const MIST_PAD_Y_MJ = 34;
+  const TEXT_STROKE_WIDTH_MJ = 1.5;
+
+  const NAME_COLOR_MJ = "#ffffff";
+  const READING_COLOR_MJ = "#f5f3ff";
+  const SUBTITLE_COLOR_MJ = "#f5f3ff";
+  const LINE_COLOR_MJ = "#f5f3ff";
+  const STROKE_COLOR_MJ = "#2a1f55";
+  const GLOW_COLOR_MJ = "rgba(150,120,255,0.85)";
+  const BADGE_ALPHA_MJ = 0.88;
+  const MIST_ALPHA_MJ = 0.65;
+  const MIST_WIDTH_SCALE_MJ = 0.855;
+
+  // エンブレム一式(①〜④)のグループ移動量(キャンバス実ピクセル単位)と拡大率。
+  let mjImg = null;
+  let mjOffsetX = 0;
+  let mjOffsetY = 0;
+  let mjScale = 1;
+  let mjDragging = false;
+  let mjDragMoved = false;
+  let mjDragStartClientX = 0;
+  let mjDragStartClientY = 0;
+  let mjDragStartOffsetX = 0;
+  let mjDragStartOffsetY = 0;
+
+  const majokaiImg = new Image();
+  majokaiImg.onload = () => renderMJ();
+  majokaiImg.src = "Image/majokai.png";
+
+  const majokaiMistImg = new Image();
+  majokaiMistImg.onload = () => renderMJ();
+  majokaiMistImg.src = "Image/majokai_serihu.png";
+
+  function wrapMJ(text, maxWidth, maxLines) {
+    const paragraphs = text.replace(/\r\n/g, "\n").split("\n");
+    const lines = [];
+    paragraphs.forEach((para) => {
+      if (para.length === 0) {
+        lines.push("");
+        return;
+      }
+      let current = "";
+      for (const ch of para) {
+        const test = current + ch;
+        if (mjCtx.measureText(test).width > maxWidth && current.length > 0) {
+          lines.push(current);
+          current = ch;
+        } else {
+          current = test;
+        }
+      }
+      if (current.length > 0) lines.push(current);
+    });
+    return (lines.length ? lines : [""]).slice(0, maxLines);
+  }
+
+  function drawBadgeMJ(cx, cy, diam) {
+    if (!majokaiImg.complete || !majokaiImg.naturalWidth) return;
+    const w = diam;
+    const h = (w / majokaiImg.naturalWidth) * majokaiImg.naturalHeight;
+    mjCtx.save();
+    mjCtx.globalAlpha = BADGE_ALPHA_MJ;
+    mjCtx.drawImage(majokaiImg, cx - w / 2, cy - h / 2, w, h);
+    mjCtx.restore();
+  }
+
+  function renderMJ() {
+    if (!mjImg) return;
+    const W = mjCanvas.width;
+    const H = mjCanvas.height;
+    const s = W / REF_W_MJ;
+    // s = 画像サイズに合わせるフィット倍率、mjScale = ユーザーによる追加の拡大率。
+    // 二つを掛けた gs が「エンブレム一式」全体のスケールになる。
+    const gs = s * mjScale;
+    const groupCX = CX_MJ * s + mjOffsetX;
+    const groupCY = CY_MJ * s + mjOffsetY;
+
+    mjCtx.clearRect(0, 0, W, H);
+    mjCtx.drawImage(mjImg, 0, 0, W, H);
+
+    const name = mjNameInput.value.trim();
+    const reading = mjReadingInput.value.trim();
+    const subtitleRaw = mjSubtitleInput.value.trim();
+    const lineRaw = mjLineInput.value.trim();
+
+    drawBadgeMJ(groupCX, groupCY, BADGE_DIAM_MJ * gs);
+
+    mjCtx.textAlign = "center";
+    mjCtx.lineJoin = "round";
+
+    if (reading) {
+      mjCtx.font = `italic ${Math.round(READING_FONT_MJ * gs)}px ${FONT}`;
+      mjCtx.lineWidth = TEXT_STROKE_WIDTH_MJ * gs;
+      mjCtx.strokeStyle = STROKE_COLOR_MJ;
+      const y = groupCY + READING_OFFSET_Y_MJ * gs;
+      mjCtx.strokeText(reading, groupCX, y);
+      mjCtx.fillStyle = READING_COLOR_MJ;
+      mjCtx.fillText(reading, groupCX, y);
+    }
+
+    if (name) {
+      mjCtx.font = `italic ${Math.round(NAME_FONT_MJ * gs)}px ${FONT}`;
+      mjCtx.lineWidth = (TEXT_STROKE_WIDTH_MJ + 1) * gs;
+      mjCtx.strokeStyle = STROKE_COLOR_MJ;
+      mjCtx.shadowColor = GLOW_COLOR_MJ;
+      mjCtx.shadowBlur = 18 * gs;
+      const y = groupCY + NAME_OFFSET_Y_MJ * gs;
+      mjCtx.strokeText(name, groupCX, y);
+      mjCtx.fillStyle = NAME_COLOR_MJ;
+      mjCtx.fillText(name, groupCX, y);
+      mjCtx.shadowColor = "transparent";
+      mjCtx.shadowBlur = 0;
+    }
+
+    if (subtitleRaw) {
+      mjCtx.font = `italic ${Math.round(SUBTITLE_FONT_MJ * gs)}px ${FONT}`;
+      const subLines = wrapMJ(subtitleRaw, SUBTITLE_MAX_WIDTH_MJ * gs, SUBTITLE_MAX_LINES_MJ);
+      mjCtx.lineWidth = TEXT_STROKE_WIDTH_MJ * gs;
+      mjCtx.strokeStyle = STROKE_COLOR_MJ;
+      mjCtx.fillStyle = SUBTITLE_COLOR_MJ;
+      subLines.forEach((line, i) => {
+        const y = groupCY + (SUBTITLE_START_OFFSET_Y_MJ + i * SUBTITLE_LINE_HEIGHT_MJ) * gs;
+        mjCtx.strokeText(line, groupCX, y);
+        mjCtx.fillText(line, groupCX, y);
+      });
+    }
+
+    if (lineRaw) {
+      mjCtx.font = `italic ${Math.round(LINE_FONT_MJ * gs)}px ${FONT}`;
+      const lnLines = wrapMJ(lineRaw, LINE_MAX_WIDTH_MJ * gs, LINE_MAX_LINES_MJ);
+      const lineHeightPx = LINE_LINE_HEIGHT_MJ * gs;
+      const blockTop = groupCY + LINE_START_OFFSET_Y_MJ * gs - lineHeightPx * 0.75;
+      const blockHeight = lineHeightPx * lnLines.length + lineHeightPx * 0.5;
+      let maxLineWidth = 0;
+      lnLines.forEach((line) => {
+        maxLineWidth = Math.max(maxLineWidth, mjCtx.measureText(line).width);
+      });
+
+      // ④のセリフ用の青紫のもや。テキスト未入力時はこのブロックごと描かない。
+      const mistTargetW = maxLineWidth + MIST_PAD_X_MJ * 2 * gs;
+      const mistTargetH = blockHeight + MIST_PAD_Y_MJ * gs;
+      const mistCY = blockTop + blockHeight / 2;
+      if (majokaiMistImg.complete && majokaiMistImg.naturalWidth) {
+        // テキストの縦横比に合わせて画像を歪めて引き伸ばすと横伸びして見えるため、
+        // 画像本来の縦横比を保ったまま必要な範囲を覆うスケールで描画する
+        // (CSSのbackground-size: coverと同じ考え方)。
+        const mistImgAspect = majokaiMistImg.naturalWidth / majokaiMistImg.naturalHeight;
+        const mistScale = Math.max(mistTargetW / majokaiMistImg.naturalWidth, mistTargetH / majokaiMistImg.naturalHeight);
+        const mistW = majokaiMistImg.naturalWidth * mistScale * MIST_WIDTH_SCALE_MJ;
+        const mistH = mistW / mistImgAspect;
+        mjCtx.save();
+        mjCtx.globalAlpha = MIST_ALPHA_MJ;
+        mjCtx.drawImage(majokaiMistImg, groupCX - mistW / 2, mistCY - mistH / 2, mistW, mistH);
+        mjCtx.restore();
+      }
+
+      mjCtx.lineWidth = TEXT_STROKE_WIDTH_MJ * gs;
+      mjCtx.strokeStyle = STROKE_COLOR_MJ;
+      mjCtx.fillStyle = LINE_COLOR_MJ;
+      mjCtx.shadowColor = "rgba(0,0,0,0.5)";
+      mjCtx.shadowBlur = 4 * gs;
+      lnLines.forEach((line, i) => {
+        const y = groupCY + LINE_START_OFFSET_Y_MJ * gs + i * lineHeightPx;
+        mjCtx.strokeText(line, groupCX, y);
+        mjCtx.fillText(line, groupCX, y);
+      });
+      mjCtx.shadowColor = "transparent";
+      mjCtx.shadowBlur = 0;
+    }
+  }
+
+  function loadImageMJ(src) {
+    const image = new Image();
+    image.onload = () => {
+      mjImg = image;
+      mjCanvas.width = image.naturalWidth;
+      mjCanvas.height = image.naturalHeight;
+      mjCanvasDropArea.classList.add("has-image");
+      mjDownloadBtn.disabled = false;
+      const lang = document.querySelector('input[name="lang"]:checked')?.value || "ja";
+      applyLang(lang);
+      renderMJ();
+    };
+    image.src = src;
+  }
+
+  function loadFileMJ(file) {
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => loadImageMJ(e.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  mjImageInput.addEventListener("change", (e) => {
+    if (e.target.files && e.target.files[0]) loadFileMJ(e.target.files[0]);
+  });
+
+  mjCanvasDropArea.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    mjCanvasDropArea.classList.add("drag");
+  });
+  mjCanvasDropArea.addEventListener("dragleave", () => mjCanvasDropArea.classList.remove("drag"));
+  mjCanvasDropArea.addEventListener("drop", (e) => {
+    e.preventDefault();
+    mjCanvasDropArea.classList.remove("drag");
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFileMJ(e.dataTransfer.files[0]);
+  });
+
+  [mjNameInput, mjReadingInput, mjSubtitleInput, mjLineInput].forEach((el) => {
+    el.addEventListener("input", renderMJ);
+  });
+
+  // エンブレム一式(①〜④)のドラッグ移動。OSファイルドラッグ&ドロップ
+  // (dragover/drop、画像読み込み用)とはイベント種別が別なので競合しない。
+  mjCanvasDropArea.addEventListener("mousedown", (e) => {
+    if (!mjImg) return;
+    mjDragging = true;
+    mjDragMoved = false;
+    mjDragStartClientX = e.clientX;
+    mjDragStartClientY = e.clientY;
+    mjDragStartOffsetX = mjOffsetX;
+    mjDragStartOffsetY = mjOffsetY;
+    mjCanvasDropArea.classList.add("dragging-group");
+    e.preventDefault();
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (!mjDragging) return;
+    const rect = mjCanvas.getBoundingClientRect();
+    const ratio = mjCanvas.width / rect.width;
+    const dx = (e.clientX - mjDragStartClientX) * ratio;
+    const dy = (e.clientY - mjDragStartClientY) * ratio;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) mjDragMoved = true;
+    mjOffsetX = mjDragStartOffsetX + dx;
+    mjOffsetY = mjDragStartOffsetY + dy;
+    renderMJ();
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!mjDragging) return;
+    mjDragging = false;
+    mjCanvasDropArea.classList.remove("dragging-group");
+  });
+
+  // ホイールでの拡大縮小(スライダーとも値を同期)。
+  mjCanvasDropArea.addEventListener(
+    "wheel",
+    (e) => {
+      if (!mjImg) return;
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.05 : 0.05;
+      mjScale = Math.min(2, Math.max(0.5, mjScale + delta));
+      mjScaleInput.value = mjScale.toFixed(2);
+      renderMJ();
+    },
+    { passive: false }
+  );
+
+  mjScaleInput.addEventListener("input", () => {
+    mjScale = parseFloat(mjScaleInput.value);
+    renderMJ();
+  });
+
+  mjResetPosBtn.addEventListener("click", () => {
+    mjOffsetX = 0;
+    mjOffsetY = 0;
+    mjScale = 1;
+    mjScaleInput.value = "1";
+    renderMJ();
+  });
+
+  mjDownloadBtn.addEventListener("click", () => {
+    if (!mjImg) return;
+    mjCanvas.toBlob((blob) => {
+      if (!blob) {
+        alert("画像の書き出しに失敗しました。file:// で直接開いている場合は、ローカルサーバー経由、または公開後のページでお試しください。");
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `majokai_${Date.now()}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }, "image/png");
+  });
+
   const decorLineImg = new Image();
   const decorDiamondImg = new Image();
   const decorLineFullImg = new Image();
@@ -719,6 +1084,12 @@
 
   canvasDropArea.addEventListener("click", () => openModalWith(canvas, canvasDropArea, !!img));
   srCanvasDropArea.addEventListener("click", () => openModalWith(srCanvas, srCanvasDropArea, !!srImg));
+  // 魔女会タブはキャンバス上のドラッグでエンブレムを移動できるため、
+  // ドラッグ操作の末尾に発火するclickでは拡大モーダルを開かない。
+  mjCanvasDropArea.addEventListener("click", () => {
+    if (mjDragMoved) return;
+    openModalWith(mjCanvas, mjCanvasDropArea, !!mjImg);
+  });
   imageModal.addEventListener("click", closeModal);
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeModal();
@@ -777,5 +1148,11 @@
       document.fonts.load(`${BODY_FONT_SR}px ${FONT_SR}`),
       document.fonts.load(`${UID_FONT_SR}px ${FONT_SR}`),
     ]).then(renderSR);
+    Promise.all([
+      document.fonts.load(`italic ${NAME_FONT_MJ}px ${FONT}`),
+      document.fonts.load(`italic ${READING_FONT_MJ}px ${FONT}`),
+      document.fonts.load(`italic ${SUBTITLE_FONT_MJ}px ${FONT}`),
+      document.fonts.load(`italic ${LINE_FONT_MJ}px ${FONT}`),
+    ]).then(renderMJ);
   }
 })();
