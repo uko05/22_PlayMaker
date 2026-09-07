@@ -423,3 +423,89 @@ main {
   pointer-events: none;
   z-index: 10;
 }
+
+/* ===== 前回保存した画像を確認 ===== */
+.uko-saved-image-wrap {
+  margin: 8px 0;
+}
+.uko-saved-image-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.uko-saved-image-toggle:hover {
+  opacity: 0.8;
+}
+.uko-saved-image-panel {
+  margin-top: 8px;
+}
+.uko-saved-image-date {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.uko-saved-image-message {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.uko-saved-image-message a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.uko-saved-image-img {
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* クリックで100%表示するポップアップ */
+.uko-saved-image-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.uko-saved-image-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+}
+.uko-saved-image-modal-content {
+  position: relative;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow: auto;
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+}
+.uko-saved-image-modal-content img {
+  display: block;
+  max-width: none;
+}
+.uko-saved-image-modal-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  z-index: 1;
+}

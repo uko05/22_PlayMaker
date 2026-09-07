@@ -52,6 +52,15 @@
       <button class="btn-action btn-primary" id="downloadBtn" disabled data-i18n="btnSaveImage">Save Image</button>
     </div>
 
+    <div class="uko-saved-image-wrap" id="uko-saved-image-wrap-genshin">
+      <button type="button" class="uko-saved-image-toggle" id="uko-saved-image-toggle-genshin">前回保存した画像を確認 <span class="uko-saved-image-arrow" id="uko-saved-image-arrow-genshin">▼</span></button>
+      <div class="uko-saved-image-panel" id="uko-saved-image-panel-genshin" style="display:none;">
+        <p class="uko-saved-image-message" id="uko-saved-image-message-genshin"></p>
+        <p class="uko-saved-image-date" id="uko-saved-image-date-genshin"></p>
+        <img class="uko-saved-image-img" id="uko-saved-image-img-genshin" src="" alt="">
+      </div>
+    </div>
+
     <div class="input-panel" id="inputPanel">
       <button class="input-panel-toggle" id="inputPanelToggle" type="button">
         <span data-i18n="inputPanelTitle">テキスト入力</span>
@@ -100,6 +109,15 @@
       <button class="btn-action btn-primary" id="srDownloadBtn" disabled data-i18n="btnSaveImage">Save Image</button>
     </div>
 
+    <div class="uko-saved-image-wrap" id="uko-saved-image-wrap-starrail">
+      <button type="button" class="uko-saved-image-toggle" id="uko-saved-image-toggle-starrail">前回保存した画像を確認 <span class="uko-saved-image-arrow" id="uko-saved-image-arrow-starrail">▼</span></button>
+      <div class="uko-saved-image-panel" id="uko-saved-image-panel-starrail" style="display:none;">
+        <p class="uko-saved-image-message" id="uko-saved-image-message-starrail"></p>
+        <p class="uko-saved-image-date" id="uko-saved-image-date-starrail"></p>
+        <img class="uko-saved-image-img" id="uko-saved-image-img-starrail" src="" alt="">
+      </div>
+    </div>
+
     <div class="input-panel" id="srInputPanel">
       <button class="input-panel-toggle" id="srInputPanelToggle" type="button">
         <span data-i18n="inputPanelTitle">テキスト入力</span>
@@ -136,6 +154,15 @@
         <input type="file" id="mjImageInput" accept="image/*" hidden>
       </label>
       <button class="btn-action btn-primary" id="mjDownloadBtn" disabled data-i18n="btnSaveImage">Save Image</button>
+    </div>
+
+    <div class="uko-saved-image-wrap" id="uko-saved-image-wrap-majokai">
+      <button type="button" class="uko-saved-image-toggle" id="uko-saved-image-toggle-majokai">前回保存した画像を確認 <span class="uko-saved-image-arrow" id="uko-saved-image-arrow-majokai">▼</span></button>
+      <div class="uko-saved-image-panel" id="uko-saved-image-panel-majokai" style="display:none;">
+        <p class="uko-saved-image-message" id="uko-saved-image-message-majokai"></p>
+        <p class="uko-saved-image-date" id="uko-saved-image-date-majokai"></p>
+        <img class="uko-saved-image-img" id="uko-saved-image-img-majokai" src="" alt="">
+      </div>
     </div>
 
     <div class="input-panel" id="mjInputPanel">
@@ -175,6 +202,14 @@
     <p class="mj-drag-hint" id="mjDragHint" data-i18n="mjDragHint">画像の上をドラッグでエンブレム一式を移動、ホイールで拡大縮小できます</p>
 
   </div>
+
+  <div class="uko-saved-image-modal" id="uko-saved-image-modal" style="display:none;">
+    <div class="uko-saved-image-modal-backdrop"></div>
+    <div class="uko-saved-image-modal-content">
+      <button type="button" class="uko-saved-image-modal-close" id="uko-saved-image-modal-close">×</button>
+      <img id="uko-saved-image-modal-img" src="" alt="">
+    </div>
+  </div>
 </main>
 
 <footer class="app-footer">
@@ -189,7 +224,8 @@
 
 <div class="build-tag" id="buildTag">?</div>
 
-<script src="script.js?v=44"></script>
+<script src="script.js?v=45"></script>
+<script type="module" src="saved-image-init.js"></script>
 
 <!-- 共通サイドバー -->
 <script src="https://uko05.github.io/TopPage00/shared/sidebar.js"></script>

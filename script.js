@@ -4,7 +4,7 @@
   // Bump this on every push. Set from JS (not static HTML) so a stale
   // cached script.js shows its OLD number even if index.html is fresh —
   // makes browser-cache mismatches obvious instead of silently hiding them.
-  const BUILD_VERSION = "v44";
+  const BUILD_VERSION = "v45";
   const buildTagEl = document.getElementById("buildTag");
   if (buildTagEl) buildTagEl.textContent = BUILD_VERSION;
 
@@ -473,6 +473,7 @@
         alert("画像の書き出しに失敗しました。file:// で直接開いている場合は、ローカルサーバー経由、または公開後のページでお試しください。");
         return;
       }
+      document.dispatchEvent(new CustomEvent("uko-image-saved", { detail: { blob, siteId: "playMakerStarrail" } }));
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -808,6 +809,7 @@
         alert("画像の書き出しに失敗しました。file:// で直接開いている場合は、ローカルサーバー経由、または公開後のページでお試しください。");
         return;
       }
+      document.dispatchEvent(new CustomEvent("uko-image-saved", { detail: { blob, siteId: "playMakerMajokai" } }));
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -1124,6 +1126,10 @@
         alert("画像の書き出しに失敗しました。file:// で直接開いている場合は、ローカルサーバー経由、または公開後のページでお試しください。");
         return;
       }
+      // このファイルは type="module" ではないため import が使えない。
+      // アカウント登録者向けクラウド保存(saved-image.js)は別途 type="module" の
+      // saved-image-init.js に任せ、ここではイベントで blob を渡すだけにする。
+      document.dispatchEvent(new CustomEvent("uko-image-saved", { detail: { blob, siteId: "playMakerGenshin" } }));
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
