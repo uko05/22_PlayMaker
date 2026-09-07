@@ -434,7 +434,7 @@ main {
   padding: 0;
   font-family: inherit;
   font-size: 13px;
-  color: var(--accent);
+  color: #d32f2f;
   text-decoration: underline;
   cursor: pointer;
 }
@@ -455,7 +455,7 @@ main {
   color: var(--muted);
 }
 .uko-saved-image-message a {
-  color: var(--accent);
+  color: #d32f2f;
   text-decoration: underline;
 }
 .uko-saved-image-img {
