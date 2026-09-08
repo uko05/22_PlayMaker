@@ -11,7 +11,8 @@
 // firebaseConfig.js を先に評価してデフォルトAppを確立してから saved-image.js を
 // importすること(順序が逆だとログイン状態が正しく共有されない。saved-image.js
 // のコメント参照)。
-import './firebaseConfig.js';
+import { db } from './firebaseConfig.js';
+import { doc, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import {
   onAccountAuthState, saveProfileImage, getSavedProfileImage, formatSavedAt,
 } from 'https://uko05.github.io/24_AccountCenter/saved-image.js';
@@ -21,6 +22,85 @@ const WIDGETS = [
   { idSuffix: 'starrail', siteId: 'playMakerStarrail' },
   { idSuffix: 'majokai', siteId: 'playMakerMajokai' },
 ];
+
+// ===== ユーザーID(uko05.github.io配下の全サイト共通のlocalStorageキー) =====
+const LS_USER_ID = 'genshinOmikuji_userId';
+function getSharedUserId() {
+  let id = localStorage.getItem(LS_USER_ID);
+  if (!id) {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    id = 'u_' + Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+    localStorage.setItem(LS_USER_ID, id);
+  }
+  return id;
+}
+
+// ===== 「画像を1回生成する」ミッション(アカウント登録者限定・生涯1回・+20UP)
+// 3種類(原神/スタレ/魔女会)のうちどれか1つを生成すれば達成(claimKeyは共通1個)。 =====
+const MISSION_CLAIM_KEY = 'playMakerImage';
+let missionLoggedInUser = null;
+onAccountAuthState((user) => {
+  missionLoggedInUser = user;
+  if (user) claimImageGenerationMissionIfAlreadySaved();
+});
+
+function showMissionToast(text) {
+  let toast = document.getElementById('uko-mission-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'uko-mission-toast';
+    toast.className = 'uko-mission-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = text;
+  toast.classList.remove('show');
+  void toast.offsetWidth; // reflow
+  toast.classList.add('show');
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+async function claimMissionOnce() {
+  const userId = getSharedUserId();
+  const ref = doc(db, 'omikujiUsers', userId);
+  try {
+    const claimed = await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      const data = snap.exists() ? snap.data() : {};
+      if (data.missionsClaimed?.[MISSION_CLAIM_KEY]) return false;
+      tx.set(ref, {
+        ukoPoints: increment(20),
+        missionsClaimed: { [MISSION_CLAIM_KEY]: true },
+      }, { merge: true });
+      return true;
+    });
+    if (claimed) {
+      const lang = savedImageLang();
+      showMissionToast(lang === 'en' ? 'Mission complete! +20 UP' : 'ミッション達成！ +20UP');
+    }
+  } catch (e) {
+    console.error('[mission] claim failed', e);
+  }
+}
+
+// 画像生成が成功した時に呼ぶ。未ログインなら静かに何もしない。
+function claimImageGenerationMission() {
+  if (!missionLoggedInUser) return;
+  claimMissionOnce();
+}
+
+// 既にログイン前から(3種類のどれかを)画像を保存済みだった人を、ログイン検知時に遡って達成扱いにする
+async function claimImageGenerationMissionIfAlreadySaved() {
+  for (const { siteId } of WIDGETS) {
+    try {
+      const entry = await getSavedProfileImage(siteId);
+      if (entry) { await claimMissionOnce(); return; }
+    } catch (e) {
+      console.error('[mission] backfill check failed', e);
+    }
+  }
+}
 
 function savedImageLang() {
   return document.querySelector('input[name="lang"]:checked')?.value || localStorage.getItem('lang') || 'ja';
@@ -104,6 +184,7 @@ function createSavedImageWidget({ idSuffix, siteId }) {
 document.addEventListener('uko-image-saved', (e) => {
   const { blob, siteId } = e.detail;
   saveProfileImage(siteId, blob).then(() => refreshFns[siteId]?.());
+  claimImageGenerationMission();
 });
 
 document.addEventListener('DOMContentLoaded', () => {
