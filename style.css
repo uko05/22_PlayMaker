@@ -452,6 +452,7 @@ main {
 /* ===== 前回保存した画像を確認 ===== */
 .uko-saved-image-wrap {
   margin: 8px 0;
+  text-align: center;
 }
 .uko-saved-image-toggle {
   background: none;
