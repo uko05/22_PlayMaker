@@ -477,10 +477,10 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `dialogue_sr_${Date.now()}.png`;
+      a.download = `dialogue_sr_${Date.now()}.jpg`;
       a.click();
       URL.revokeObjectURL(url);
-    }, "image/png");
+    }, "image/jpeg", 0.92);
   });
 
   /* =========================================================
@@ -813,10 +813,10 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `majokai_${Date.now()}.png`;
+      a.download = `majokai_${Date.now()}.jpg`;
       a.click();
       URL.revokeObjectURL(url);
-    }, "image/png");
+    }, "image/jpeg", 0.92);
   });
 
   const decorLineImg = new Image();
@@ -1133,10 +1133,10 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `dialogue_${Date.now()}.png`;
+      a.download = `dialogue_${Date.now()}.jpg`;
       a.click();
       URL.revokeObjectURL(url);
-    }, "image/png");
+    }, "image/jpeg", 0.92);
   });
 
   /* =========================================================
