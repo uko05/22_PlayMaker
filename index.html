@@ -281,10 +281,32 @@
   .uko-about li{margin:2px 0;list-style:revert}
   .uko-about dt{font-weight:bold;margin-top:6px}
   .uko-about dd{margin:0 0 4px 1em}
+  .uko-about [hidden]{display:none!important}
   </style>
   <details class="uko-about">
-    <summary>このサイトについて</summary>
-    <div class="uko-about-body"><h2>原神・スタレ画面メーカーとは</h2><p>好きな画像に話者名やセリフを入れて、原神や崩壊：スターレイルのゲーム内会話シーン風の画像を作れる無料ツールです。自分のキャラやスクショで「それっぽい一場面」を作ってシェアできます。</p><h2>使い方</h2><ol><li>「原神」「原神-魔女会」「崩壊：スターレイル」から画面の種類を選びます。</li><li>画像をドラッグ&amp;ドロップするか、「画像読み込み」で選びます。</li><li>話者名・セリフ・UID（任意）などを入力して、「Save Image」で保存します。</li></ol></div>
+    <summary><span data-uko-lang="ja">このサイトについて</span><span data-uko-lang="en" hidden>About this site</span></summary>
+    <div class="uko-about-body" data-uko-lang="ja"><h2>原神・スタレ画面メーカーとは</h2><p>好きな画像に話者名やセリフを入れて、原神や崩壊：スターレイルのゲーム内会話シーン風の画像を作れる無料ツールです。自分のキャラやスクショで「それっぽい一場面」を作ってシェアできます。</p><h2>使い方</h2><ol><li>「原神」「原神-魔女会」「崩壊：スターレイル」から画面の種類を選びます。</li><li>画像をドラッグ&amp;ドロップするか、「画像読み込み」で選びます。</li><li>話者名・セリフ・UID（任意）などを入力して、「Save Image」で保存します。</li></ol></div>
+    <div class="uko-about-body" data-uko-lang="en" lang="en" hidden><h2>What is Genshin / Star Rail Screen Maker?</h2><p>A free tool for adding a speaker name and dialogue to any image to make it look like an in-game conversation scene from Genshin Impact or Honkai: Star Rail. Create a scene that looks just like the real thing with your own characters or screenshots and share it.</p><h2>How to use</h2><ol><li>Choose the screen type: "Genshin", "Genshin - Hexenzirkel" or "Honkai: Star Rail".</li><li>Drag and drop an image, or choose one with "Load image".</li><li>Enter the speaker name, dialogue, UID (optional) and so on, then press "Save Image".</li></ol></div>
   </details>
+  <script>
+  (function(){
+    // 説明文の日英切り替え。言語ラジオがあるサイトはその選択、ないサイトは共通のlocalStorage('lang')に合わせる
+    var box=document.currentScript.previousElementSibling;
+    function cur(){
+      var r=document.querySelector('input[name="lang"]:checked');
+      if(r) return r.value==='en'?'en':'ja';
+      try{return localStorage.getItem('lang')==='en'?'en':'ja';}catch(e){return 'ja';}
+    }
+    function apply(){
+      var l=cur();
+      box.querySelectorAll('[data-uko-lang]').forEach(function(n){n.hidden=n.getAttribute('data-uko-lang')!==l;});
+    }
+    apply();
+    document.addEventListener('change',function(e){if(e.target&&e.target.name==='lang')setTimeout(apply,0);});
+    document.addEventListener('DOMContentLoaded',apply);
+    window.addEventListener('load',apply);
+    new MutationObserver(apply).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  })();
+  </script>
 </body>
 </html>
