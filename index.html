@@ -265,5 +265,26 @@
 <!-- 共通サイドバー -->
 <script src="https://uko05.github.io/TopPage00/shared/sidebar.js"></script>
 <script type="module" src="https://uko05.github.io/24_AccountCenter/account-status.js"></script>
+  <!-- サイト説明(検索向け)。画像保存の範囲外に置くこと -->
+  <style>
+  .uko-about{max-width:760px;margin:32px auto 24px;padding:0 16px;box-sizing:border-box;text-align:left;font-size:14px;line-height:1.75;color:inherit;-webkit-user-select:text;user-select:text}
+  .uko-about>summary{cursor:pointer;list-style:none;display:inline-block;padding:6px 14px;border:1px solid rgba(128,128,128,.35);border-radius:999px;font-size:13px;opacity:.75}
+  .uko-about>summary:hover{opacity:1}
+  .uko-about>summary::-webkit-details-marker{display:none}
+  .uko-about>summary::before{content:"▶ "}
+  .uko-about[open]>summary::before{content:"▼ "}
+  .uko-about-body{margin-top:12px;padding:16px 20px;border:1px solid rgba(128,128,128,.25);border-radius:12px;background:rgba(128,128,128,.06)}
+  .uko-about h2{font-size:15px;font-weight:bold;margin:14px 0 6px;padding:0;border:0;background:none;color:inherit;text-align:left}
+  .uko-about h2:first-child{margin-top:0}
+  .uko-about p,.uko-about dl{margin:0 0 8px}
+  .uko-about ul,.uko-about ol{margin:0 0 8px;padding-left:1.5em}
+  .uko-about li{margin:2px 0;list-style:revert}
+  .uko-about dt{font-weight:bold;margin-top:6px}
+  .uko-about dd{margin:0 0 4px 1em}
+  </style>
+  <details class="uko-about">
+    <summary>このサイトについて</summary>
+    <div class="uko-about-body"><h2>原神・スタレ画面メーカーとは</h2><p>好きな画像に話者名やセリフを入れて、原神や崩壊：スターレイルのゲーム内会話シーン風の画像を作れる無料ツールです。自分のキャラやスクショで「それっぽい一場面」を作ってシェアできます。</p><h2>使い方</h2><ol><li>「原神」「原神-魔女会」「崩壊：スターレイル」から画面の種類を選びます。</li><li>画像をドラッグ&amp;ドロップするか、「画像読み込み」で選びます。</li><li>話者名・セリフ・UID（任意）などを入力して、「Save Image」で保存します。</li></ol></div>
+  </details>
 </body>
 </html>
